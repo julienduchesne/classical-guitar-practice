@@ -6,6 +6,8 @@ export const metadata: Metadata = {
   description: "Classical guitar practice app",
 };
 
+import { Sidebar } from "@/components/Sidebar";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -13,7 +15,21 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body style={bodyStyle}>
+        <Sidebar />
+        <div style={contentStyle}>{children}</div>
+      </body>
     </html>
   );
 }
+
+const bodyStyle: React.CSSProperties = {
+  display: "flex",
+  minHeight: "100vh",
+  margin: 0,
+};
+
+const contentStyle: React.CSSProperties = {
+  flex: 1,
+  minWidth: 0,
+};

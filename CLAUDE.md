@@ -12,9 +12,16 @@ alwaysApply: true
 - **Deploy**: Vercel (framework auto-detected; optional `vercel.json` at root)
 - **Lint**: ESLint with `next/core-web-vitals` (`.eslintrc.json`)
 
+## Password protection
+
+- When **`SITE_PASSWORD`** (env var) is set, all routes except `/auth` require `?password=<password>`.
+- Unauthenticated visits redirect to `/auth?next=<path>`.
+- Use **`@/components/Link`** for in-app links so the password query param is preserved when navigating.
+
 ## Layout
 
 - `app/` — App Router: `layout.tsx`, `page.tsx`, `globals.css`
+- `components/` — Shared UI (e.g. `Link` that preserves `?password=`)
 - `next.config.ts` — Next.js config
 - `tsconfig.json` — Path alias `@/*` → repo root
 - No README by default; avoid creating one unless asked.

@@ -1,7 +1,12 @@
-export default function Home() {
-  return (
-    <main>
-      <h1>Classical Guitar Practice</h1>
-    </main>
-  );
+import { redirect } from "next/navigation";
+
+type Props = { searchParams: Promise<{ [key: string]: string | string[] | undefined }> };
+
+export default async function Home({ searchParams }: Props) {
+  const params = await searchParams;
+  const url = new URL("/daily-practice", "http://localhost");
+  if (params.password && typeof params.password === "string") {
+    url.searchParams.set("password", params.password);
+  }
+  redirect(url.pathname + url.search);
 }
