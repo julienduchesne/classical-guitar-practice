@@ -1,8 +1,12 @@
-export default function SheetMusicPage() {
-  return (
-    <main style={{ padding: "1.5rem" }}>
-      <h1 style={{ marginTop: 0 }}>Sheet music</h1>
-      <p>Sheet music collection.</p>
-    </main>
-  );
+import { redirect } from "next/navigation";
+
+type Props = { searchParams: Promise<{ [key: string]: string | string[] | undefined }> };
+
+export default async function SheetMusicRedirect({ searchParams }: Props) {
+  const params = await searchParams;
+  const url = new URL("/pieces", "http://localhost");
+  if (params.password && typeof params.password === "string") {
+    url.searchParams.set("password", params.password);
+  }
+  redirect(url.pathname + url.search);
 }

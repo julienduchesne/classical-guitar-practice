@@ -12,6 +12,10 @@ alwaysApply: true
 - **Deploy**: Vercel (framework auto-detected; optional `vercel.json` at root)
 - **Lint**: ESLint with `next/core-web-vitals` (`.eslintrc.json`)
 
+## Data
+
+- **Vercel Blob** stores app data (exercises seed, pieces, daily exercise sets). Set **`BLOB_READ_WRITE_TOKEN`** in env (create a Blob store in the Vercel project to get the token).
+
 ## Password protection
 
 - When **`SITE_PASSWORD`** (env var) is set, all routes except `/auth` require `?password=<password>`.

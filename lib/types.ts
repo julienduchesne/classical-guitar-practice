@@ -1,0 +1,49 @@
+export const EXERCISE_CATEGORIES = [
+  "right_hand",
+  "left_hand",
+  "coordination_scales",
+  "specialized",
+] as const;
+export type ExerciseCategory = (typeof EXERCISE_CATEGORIES)[number];
+
+export interface Exercise {
+  id: string;
+  name: string;
+  category: ExerciseCategory;
+  focus: string;
+}
+
+export const PROFICIENCY_LEVELS = [
+  "new",
+  "struggling",
+  "learning",
+  "comfortable",
+  "very_proficient",
+] as const;
+export type Proficiency = (typeof PROFICIENCY_LEVELS)[number];
+
+/** Days until next due by proficiency (for spaced repetition). */
+export const PROFICIENCY_INTERVAL_DAYS: Record<Proficiency, number> = {
+  new: 0,
+  struggling: 2,
+  learning: 5,
+  comfortable: 7,
+  very_proficient: 14,
+};
+
+export interface Piece {
+  id: string;
+  title: string;
+  proficiency: Proficiency;
+  lastPlayed: string | null; // ISO date
+  playCount: number;
+  troubleNotes: string;
+  goalBpm: number | null;
+  currentCleanBpm: number | null;
+  createdAt: string; // ISO
+}
+
+export interface DailyExerciseSet {
+  date: string; // YYYY-MM-DD
+  exerciseIds: string[];
+}

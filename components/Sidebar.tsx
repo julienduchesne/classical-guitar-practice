@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 const nav = [
   { href: "/daily-practice", label: "Daily practice" },
   { href: "/exercises", label: "Exercises" },
-  { href: "/sheet-music", label: "Sheet music" },
+  { href: "/pieces", label: "Pieces" },
 ] as const;
 
 export function Sidebar() {
