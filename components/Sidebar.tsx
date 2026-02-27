@@ -8,6 +8,7 @@ const nav = [
   { href: "/daily-practice", label: "Daily Practice" },
   { href: "/exercises", label: "Exercises" },
   { href: "/pieces", label: "Pieces" },
+  { href: "/practice-log", label: "Practice Log" },
 ] as const;
 
 export function Sidebar({

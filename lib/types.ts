@@ -46,3 +46,12 @@ export interface DailyExerciseSet {
   date: string; // YYYY-MM-DD
   exerciseTitles: string[];
 }
+
+export interface PracticeLogEntry {
+  id: string;
+  date: string; // YYYY-MM-DD
+  exerciseNames: string[];
+  newPieceTitle: string | null;
+  familiarPieceTitles: string[];
+  createdAt: string; // ISO datetime
+}

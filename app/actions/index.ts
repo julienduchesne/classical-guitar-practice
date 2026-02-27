@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { readJson, writeJson } from "@/lib/blob";
 import { EXERCISES } from "@/lib/seed-exercises";
-import type { Exercise, Piece } from "@/lib/types";
+import type { Exercise, Piece, PracticeLogEntry } from "@/lib/types";
 import {
   type Proficiency,
   PROFICIENCY_LEVELS,
@@ -16,6 +16,7 @@ import {
 } from "@/lib/daily-logic";
 
 const PIECES_PATH = "data/pieces.json";
+const PRACTICE_LOG_PATH = "data/practice-log.json";
 
 function dailyPath(date: string): string {
   return `data/daily-${date}.json`;
@@ -130,4 +131,35 @@ export async function deletePiece(id: string): Promise<void> {
   revalidatePath("/sheet-music");
 }
 
-export type { Exercise, Piece, Proficiency };
+export async function getPracticeLog(): Promise<PracticeLogEntry[]> {
+  const data = await readJson<PracticeLogEntry[]>(PRACTICE_LOG_PATH);
+  return Array.isArray(data) ? data : [];
+}
+
+export async function savePracticeSession(entry: {
+  date: string;
+  exerciseNames: string[];
+  newPieceTitle: string | null;
+  familiarPieceTitles: string[];
+}): Promise<void> {
+  const log = await getPracticeLog();
+  const newEntry: PracticeLogEntry = {
+    id: crypto.randomUUID(),
+    ...entry,
+    createdAt: new Date().toISOString(),
+  };
+  log.push(newEntry);
+  await writeJson(PRACTICE_LOG_PATH, log);
+  revalidatePath("/practice-log");
+  revalidatePath("/daily-practice");
+}
+
+export async function deletePracticeLogEntry(id: string): Promise<void> {
+  const log = await getPracticeLog();
+  const filtered = log.filter((e) => e.id !== id);
+  if (filtered.length === log.length) return;
+  await writeJson(PRACTICE_LOG_PATH, filtered);
+  revalidatePath("/practice-log");
+}
+
+export type { Exercise, Piece, Proficiency, PracticeLogEntry };

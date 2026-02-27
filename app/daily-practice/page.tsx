@@ -5,9 +5,11 @@ import {
   getTodayExercises,
   getNewPiece,
   getFamiliarPiecesDue,
+  getPracticeLog,
 } from "@/app/actions";
 import { MarkAsPlayedButton } from "./MarkAsPlayedButton";
 import { RegenerateExercisesButton } from "./RegenerateExercisesButton";
+import { DoneButton } from "./DoneButton";
 import styles from "./DailyPractice.module.css";
 
 function today(): string {
@@ -16,11 +18,13 @@ function today(): string {
 
 export default async function DailyPracticePage() {
   const date = today();
-  const [todayData, newPiece, familiarPieces] = await Promise.all([
+  const [todayData, newPiece, familiarPieces, log] = await Promise.all([
     getTodayExercises(date),
     getNewPiece(),
     getFamiliarPiecesDue(date),
+    getPracticeLog(),
   ]);
+  const alreadyLogged = log.some((e) => e.date === date);
 
   return (
     <main>
@@ -93,6 +97,14 @@ export default async function DailyPracticePage() {
           <p className={styles.muted}>No familiar pieces due today.</p>
         )}
       </section>
+
+      <DoneButton
+        date={date}
+        exerciseNames={todayData.exercises.map((e) => e.name)}
+        newPieceTitle={newPiece?.title ?? null}
+        familiarPieceTitles={familiarPieces.map((p) => p.title)}
+        alreadyLogged={alreadyLogged}
+      />
     </main>
   );
 }
