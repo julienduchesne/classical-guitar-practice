@@ -5,7 +5,7 @@ const BLOB_PREFIX = "data/";
 export async function readJson<T>(pathname: string): Promise<T | null> {
   const fullPath = pathname.startsWith(BLOB_PREFIX) ? pathname : `${BLOB_PREFIX}${pathname}`;
   try {
-    const result = await get(fullPath, { access: "private" });
+    const result = await get(fullPath, { access: "private", useCache: false });
     if (!result || result.statusCode !== 200 || !result.stream) return null;
     const text = await new Response(result.stream).text();
     return JSON.parse(text) as T;
