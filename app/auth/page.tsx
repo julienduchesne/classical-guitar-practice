@@ -2,6 +2,7 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useCallback, useState } from "react";
+import styles from "./Auth.module.css";
 
 function AuthForm() {
   const router = useRouter();
@@ -28,41 +29,40 @@ function AuthForm() {
   );
 
   return (
-    <main style={{ padding: "2rem", maxWidth: "24rem", margin: "0 auto" }}>
-      <h1 style={{ marginBottom: "1rem" }}>Password required</h1>
-      <form onSubmit={onSubmit}>
-        <label htmlFor="password" style={{ display: "block", marginBottom: "0.5rem" }}>
-          Password
-        </label>
-        <input
-          id="password"
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          autoComplete="current-password"
-          style={{
-            display: "block",
-            width: "100%",
-            padding: "0.5rem",
-            marginBottom: "1rem",
-          }}
-        />
-        {error && (
-          <p style={{ color: "crimson", marginBottom: "1rem", fontSize: "0.9rem" }}>
-            {error}
-          </p>
-        )}
-        <button type="submit" style={{ padding: "0.5rem 1rem" }}>
-          Continue
-        </button>
-      </form>
+    <main className={styles.page}>
+      <div className={styles.card}>
+        <div className={styles.icon}>🎸</div>
+        <h1 className={styles.heading}>Guitar Practice</h1>
+        <form onSubmit={onSubmit}>
+          <div className={styles.field}>
+            <label htmlFor="password">Password</label>
+            <input
+              id="password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              autoComplete="current-password"
+            />
+          </div>
+          {error && <p className={styles.error}>{error}</p>}
+          <button type="submit" className={styles.submitButton}>
+            Continue
+          </button>
+        </form>
+      </div>
     </main>
   );
 }
 
 export default function AuthPage() {
   return (
-    <Suspense fallback={<main style={{ padding: "2rem" }}>Loading…</main>}>
+    <Suspense
+      fallback={
+        <main className={styles.page}>
+          <div className={styles.card}>Loading…</div>
+        </main>
+      }
+    >
       <AuthForm />
     </Suspense>
   );

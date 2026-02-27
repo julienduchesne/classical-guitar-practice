@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { regenerateTodayExercises } from "@/app/actions";
+import styles from "./RegenerateExercisesButton.module.css";
 
 export function RegenerateExercisesButton({ date }: { date: string }) {
   const router = useRouter();
@@ -20,12 +21,7 @@ export function RegenerateExercisesButton({ date }: { date: string }) {
       type="button"
       onClick={handleClick}
       disabled={loading}
-      style={{
-        marginBottom: "0.75rem",
-        padding: "0.35rem 0.6rem",
-        fontSize: "0.875rem",
-        cursor: loading ? "wait" : "pointer",
-      }}
+      className={styles.button}
     >
       {loading ? "Regenerating…" : "Regenerate today’s exercises"}
     </button>

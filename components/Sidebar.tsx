@@ -2,29 +2,51 @@
 
 import { Link } from "@/components/Link";
 import { usePathname } from "next/navigation";
+import styles from "./Sidebar.module.css";
 
 const nav = [
-  { href: "/daily-practice", label: "Daily practice" },
+  { href: "/daily-practice", label: "Daily Practice" },
   { href: "/exercises", label: "Exercises" },
   { href: "/pieces", label: "Pieces" },
 ] as const;
 
-export function Sidebar() {
+export function Sidebar({
+  isOpen,
+  onClose,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+}) {
   const pathname = usePathname();
 
   return (
-    <nav aria-label="Main" style={sidebarStyle}>
-      <ul style={listStyle}>
+    <nav
+      aria-label="Main"
+      className={`${styles.sidebar} ${isOpen ? styles.sidebarOpen : ""}`}
+    >
+      <button
+        className={styles.closeButton}
+        onClick={onClose}
+        aria-label="Close navigation"
+      >
+        ✕
+      </button>
+
+      <div className={styles.logo}>
+        <span className={styles.logoIcon}>🎸</span>
+        Guitar Practice
+      </div>
+
+      <ul className={styles.navList}>
         {nav.map(({ href, label }) => {
-          const isActive = pathname === href || pathname.startsWith(href + "/");
+          const isActive =
+            pathname === href || pathname.startsWith(href + "/");
           return (
-            <li key={href} style={itemStyle}>
+            <li key={href} className={styles.navItem}>
               <Link
                 href={href}
-                style={{
-                  ...linkStyle,
-                  ...(isActive ? linkActiveStyle : undefined),
-                }}
+                className={`${styles.navLink} ${isActive ? styles.navLinkActive : ""}`}
+                onClick={onClose}
               >
                 {label}
               </Link>
@@ -35,32 +57,3 @@ export function Sidebar() {
     </nav>
   );
 }
-
-const sidebarStyle: React.CSSProperties = {
-  width: "12rem",
-  flexShrink: 0,
-  padding: "1rem 0",
-  borderRight: "1px solid #ddd",
-};
-
-const listStyle: React.CSSProperties = {
-  listStyle: "none",
-  margin: 0,
-  padding: 0,
-};
-
-const itemStyle: React.CSSProperties = {
-  margin: 0,
-};
-
-const linkStyle: React.CSSProperties = {
-  display: "block",
-  padding: "0.5rem 1rem",
-  color: "inherit",
-  textDecoration: "none",
-};
-
-const linkActiveStyle: React.CSSProperties = {
-  fontWeight: 600,
-  backgroundColor: "rgba(0,0,0,0.06)",
-};

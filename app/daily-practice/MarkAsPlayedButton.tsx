@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { recordPlay } from "@/app/actions";
+import styles from "./MarkAsPlayedButton.module.css";
 
 export function MarkAsPlayedButton({ pieceId }: { pieceId: string }) {
   const router = useRouter();
@@ -12,15 +13,7 @@ export function MarkAsPlayedButton({ pieceId }: { pieceId: string }) {
   }
 
   return (
-    <button
-      type="button"
-      onClick={handleClick}
-      style={{
-        padding: "0.35rem 0.6rem",
-        fontSize: "0.875rem",
-        cursor: "pointer",
-      }}
-    >
+    <button type="button" onClick={handleClick} className={styles.button}>
       Mark as played
     </button>
   );

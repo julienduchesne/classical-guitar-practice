@@ -8,6 +8,7 @@ import {
 } from "@/app/actions";
 import { MarkAsPlayedButton } from "./MarkAsPlayedButton";
 import { RegenerateExercisesButton } from "./RegenerateExercisesButton";
+import styles from "./DailyPractice.module.css";
 
 function today(): string {
   return new Date().toISOString().slice(0, 10);
@@ -22,51 +23,66 @@ export default async function DailyPracticePage() {
   ]);
 
   return (
-    <main style={{ padding: "1.5rem", maxWidth: "42rem" }}>
-      <h1 style={{ marginTop: 0 }}>Daily practice</h1>
+    <main>
+      <h1>Daily practice</h1>
 
-      <section style={sectionStyle}>
-        <h2 style={h2Style}>1. Daily exercises (~15 min)</h2>
+      <section className={styles.section}>
+        <div className={styles.sectionHeader}>
+          <span className={styles.sectionNumber}>1</span>
+          <h2 className={styles.sectionTitle}>
+            Daily exercises <span className={styles.sectionSubtitle}>~15 min</span>
+          </h2>
+        </div>
         <RegenerateExercisesButton date={date} />
-        <ul style={listStyle}>
+        <ul className={styles.exerciseList}>
           {todayData.exercises.map((e) => (
-            <li key={e.id} style={exerciseItemStyle}>
-              <strong>{e.name}</strong>
-              <span style={focusStyle}>{e.focus}</span>
+            <li key={e.id} className={styles.exerciseItem}>
+              <span className={styles.exerciseName}>{e.name}</span>
+              <span className={styles.exerciseFocus}>{e.focus}</span>
             </li>
           ))}
         </ul>
         {todayData.exercises.length === 0 && (
-          <p style={mutedStyle}>No exercises selected. Regenerate to pick some.</p>
+          <p className={styles.muted}>No exercises selected. Regenerate to pick some.</p>
         )}
       </section>
 
-      <section style={sectionStyle}>
-        <h2 style={h2Style}>2. New piece (15–20 min)</h2>
+      <section className={styles.section}>
+        <div className={styles.sectionHeader}>
+          <span className={styles.sectionNumber}>2</span>
+          <h2 className={styles.sectionTitle}>
+            New piece <span className={styles.sectionSubtitle}>15-20 min</span>
+          </h2>
+        </div>
         {newPiece ? (
-          <p style={pieceBlockStyle}>
+          <div className={styles.pieceBlock}>
             <strong>{newPiece.title}</strong>
             <br />
             <Link href={`/pieces?edit=${newPiece.id}`}>Edit / mark as played</Link>
-          </p>
+          </div>
         ) : (
-          <p style={mutedStyle}>
+          <p className={styles.muted}>
             No piece in progress.{" "}
             <Link href="/pieces">Pick or add a piece</Link> and set it as learning.
           </p>
         )}
       </section>
 
-      <section style={sectionStyle}>
-        <h2 style={h2Style}>3. Familiar pieces (~10 min)</h2>
+      <section className={styles.section}>
+        <div className={styles.sectionHeader}>
+          <span className={styles.sectionNumber}>3</span>
+          <h2 className={styles.sectionTitle}>
+            Familiar pieces <span className={styles.sectionSubtitle}>~10 min</span>
+          </h2>
+        </div>
         {familiarPieces.length > 0 ? (
-          <ul style={listStyle}>
+          <ul className={styles.familiarList}>
             {familiarPieces.map((p) => (
-              <li key={p.id} style={familiarItemStyle}>
+              <li key={p.id} className={styles.familiarItem}>
                 <span>
-                  <strong>{p.title}</strong>
+                  <span className={styles.familiarTitle}>{p.title}</span>
                   {p.lastPlayed && (
-                    <span style={mutedStyle}> — Last played {p.lastPlayed}</span>
+                    <span className={styles.familiarMeta}> — Last played {p.lastPlayed}</span>
                   )}
                 </span>
                 <MarkAsPlayedButton pieceId={p.id} />
@@ -74,55 +90,9 @@ export default async function DailyPracticePage() {
             ))}
           </ul>
         ) : (
-          <p style={mutedStyle}>No familiar pieces due today.</p>
+          <p className={styles.muted}>No familiar pieces due today.</p>
         )}
       </section>
     </main>
   );
 }
-
-const sectionStyle: React.CSSProperties = {
-  marginBottom: "2rem",
-};
-
-const h2Style: React.CSSProperties = {
-  fontSize: "1.1rem",
-  fontWeight: 600,
-  marginBottom: "0.5rem",
-};
-
-const listStyle: React.CSSProperties = {
-  listStyle: "none",
-  margin: 0,
-  padding: 0,
-};
-
-const exerciseItemStyle: React.CSSProperties = {
-  marginBottom: "0.5rem",
-};
-
-const focusStyle: React.CSSProperties = {
-  display: "block",
-  fontSize: "0.9rem",
-  color: "#555",
-  fontWeight: "normal",
-};
-
-const pieceBlockStyle: React.CSSProperties = {
-  margin: 0,
-};
-
-const familiarItemStyle: React.CSSProperties = {
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "space-between",
-  gap: "0.75rem",
-  marginBottom: "0.5rem",
-  flexWrap: "wrap",
-};
-
-const mutedStyle: React.CSSProperties = {
-  color: "#666",
-  fontSize: "0.95rem",
-  margin: 0,
-};

@@ -6,6 +6,7 @@ import { updatePiece } from "@/app/actions";
 import type { Piece, Proficiency } from "@/lib/types";
 import { PROFICIENCY_LEVELS } from "@/lib/types";
 import { Link } from "@/components/Link";
+import styles from "./Pieces.module.css";
 
 const PROFICIENCY_LABELS: Record<Proficiency, string> = {
   new: "New",
@@ -47,24 +48,22 @@ export function EditPieceForm({ piece }: { piece: Piece }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} style={formStyle}>
-      <div style={fieldStyle}>
+    <form onSubmit={handleSubmit} className={styles.form}>
+      <div className={styles.field}>
         <label htmlFor="edit-title">Title</label>
         <input
           id="edit-title"
           name="edit-title"
           defaultValue={piece.title}
           required
-          style={inputStyle}
         />
       </div>
-      <div style={fieldStyle}>
+      <div className={styles.field}>
         <label htmlFor="edit-proficiency">Proficiency</label>
         <select
           id="edit-proficiency"
           name="edit-proficiency"
           defaultValue={piece.proficiency}
-          style={inputStyle}
         >
           {PROFICIENCY_LEVELS.map((p) => (
             <option key={p} value={p}>
@@ -73,18 +72,17 @@ export function EditPieceForm({ piece }: { piece: Piece }) {
           ))}
         </select>
       </div>
-      <div style={fieldStyle}>
+      <div className={styles.field}>
         <label htmlFor="edit-troubleNotes">Trouble notes (Wall of Pain)</label>
         <textarea
           id="edit-troubleNotes"
           name="edit-troubleNotes"
           defaultValue={piece.troubleNotes}
           rows={3}
-          style={textareaStyle}
         />
       </div>
-      <div style={rowStyle}>
-        <div style={fieldStyle}>
+      <div className={styles.fieldRow}>
+        <div className={styles.field}>
           <label htmlFor="edit-goalBpm">Goal BPM</label>
           <input
             id="edit-goalBpm"
@@ -92,10 +90,9 @@ export function EditPieceForm({ piece }: { piece: Piece }) {
             type="number"
             min={1}
             defaultValue={piece.goalBpm ?? ""}
-            style={inputStyle}
           />
         </div>
-        <div style={fieldStyle}>
+        <div className={styles.field}>
           <label htmlFor="edit-currentCleanBpm">Current clean BPM</label>
           <input
             id="edit-currentCleanBpm"
@@ -103,64 +100,17 @@ export function EditPieceForm({ piece }: { piece: Piece }) {
             type="number"
             min={1}
             defaultValue={piece.currentCleanBpm ?? ""}
-            style={inputStyle}
           />
         </div>
       </div>
-      <div style={buttonRowStyle}>
-        <button type="submit" disabled={loading} style={buttonStyle}>
+      <div className={styles.buttonRow}>
+        <button type="submit" disabled={loading} className={styles.primaryButton}>
           {loading ? "Saving…" : "Save"}
         </button>
-        <Link href="/pieces" style={linkStyle}>
+        <Link href="/pieces" className={styles.cancelLink}>
           Cancel
         </Link>
       </div>
     </form>
   );
 }
-
-const formStyle: React.CSSProperties = {
-  display: "flex",
-  flexDirection: "column",
-  gap: "0.75rem",
-  maxWidth: "24rem",
-};
-
-const fieldStyle: React.CSSProperties = {
-  display: "flex",
-  flexDirection: "column",
-  gap: "0.25rem",
-};
-
-const rowStyle: React.CSSProperties = {
-  display: "flex",
-  gap: "1rem",
-};
-
-const inputStyle: React.CSSProperties = {
-  padding: "0.4rem 0.5rem",
-  fontSize: "1rem",
-};
-
-const textareaStyle: React.CSSProperties = {
-  padding: "0.4rem 0.5rem",
-  fontSize: "1rem",
-  resize: "vertical",
-};
-
-const buttonStyle: React.CSSProperties = {
-  padding: "0.5rem 0.75rem",
-  fontSize: "1rem",
-  cursor: "pointer",
-};
-
-const buttonRowStyle: React.CSSProperties = {
-  display: "flex",
-  alignItems: "center",
-  gap: "0.75rem",
-};
-
-const linkStyle: React.CSSProperties = {
-  color: "#0066cc",
-  fontSize: "0.95rem",
-};
