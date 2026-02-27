@@ -36,7 +36,7 @@ export default async function DailyPracticePage() {
         <RegenerateExercisesButton date={date} />
         <ul className={styles.exerciseList}>
           {todayData.exercises.map((e) => (
-            <li key={e.id} className={styles.exerciseItem}>
+            <li key={e.name} className={styles.exerciseItem}>
               <span className={styles.exerciseName}>{e.name}</span>
               <span className={styles.exerciseFocus}>{e.focus}</span>
             </li>

@@ -2,15 +2,19 @@
 
 import { revalidatePath } from "next/cache";
 import { readJson, writeJson } from "@/lib/blob";
-import { SEED_EXERCISES } from "@/lib/seed-exercises";
+import { EXERCISES } from "@/lib/seed-exercises";
 import type { Exercise, Piece } from "@/lib/types";
 import {
   type Proficiency,
-  PROFICIENCY_INTERVAL_DAYS,
   PROFICIENCY_LEVELS,
 } from "@/lib/types";
+import {
+  resolveExercisesByTitle,
+  selectOnePerCategory,
+  getFamiliarPiecesDue as _getFamiliarPiecesDue,
+  getNewPiece as _getNewPiece,
+} from "@/lib/daily-logic";
 
-const EXERCISES_PATH = "data/exercises.json";
 const PIECES_PATH = "data/pieces.json";
 
 function dailyPath(date: string): string {
@@ -18,55 +22,28 @@ function dailyPath(date: string): string {
 }
 
 export async function getExercises(): Promise<Exercise[]> {
-  const data = await readJson<Exercise[]>(EXERCISES_PATH);
-  if (data && Array.isArray(data) && data.length > 0) {
-    return data;
-  }
-  await writeJson(EXERCISES_PATH, SEED_EXERCISES);
-  return SEED_EXERCISES;
+  return EXERCISES;
 }
 
 export async function getTodayExercises(
   date: string
 ): Promise<{ date: string; exercises: Exercise[] }> {
-  const exercises = await getExercises();
   const path = dailyPath(date);
-  const existing = await readJson<{ date: string; exerciseIds: string[] }>(path);
-  if (existing?.exerciseIds?.length) {
-    const byId = new Map(exercises.map((e) => [e.id, e]));
-    const list = existing.exerciseIds
-      .map((id) => byId.get(id))
-      .filter((e): e is Exercise => e != null);
-    if (list.length === existing.exerciseIds.length) {
+  const existing = await readJson<{ date: string; exerciseTitles: string[] }>(path);
+  if (existing?.exerciseTitles?.length) {
+    const list = resolveExercisesByTitle(EXERCISES, existing.exerciseTitles);
+    if (list.length > 0) {
       return { date, exercises: list };
     }
   }
-  const categories = ["right_hand", "left_hand", "coordination_scales", "specialized"] as const;
-  const byCategory = new Map<string, Exercise[]>();
-  for (const e of exercises) {
-    const list = byCategory.get(e.category) ?? [];
-    list.push(e);
-    byCategory.set(e.category, list);
-  }
-  const exerciseIds: string[] = [];
-  for (const cat of categories) {
-    const list = byCategory.get(cat) ?? [];
-    if (list.length) {
-      const pick = list[Math.floor(Math.random() * list.length)];
-      exerciseIds.push(pick.id);
-    }
-  }
-  await writeJson(path, { date, exerciseIds });
-  const byId = new Map(exercises.map((e) => [e.id, e]));
-  const list = exerciseIds
-    .map((id) => byId.get(id))
-    .filter((e): e is Exercise => e != null);
-  return { date, exercises: list };
+  const titles = selectOnePerCategory(EXERCISES);
+  await writeJson(path, { date, exerciseTitles: titles });
+  return { date, exercises: resolveExercisesByTitle(EXERCISES, titles) };
 }
 
 export async function regenerateTodayExercises(date: string): Promise<void> {
   const path = dailyPath(date);
-  await writeJson(path, { date, exerciseIds: [] });
+  await writeJson(path, { date, exerciseTitles: [] });
   revalidatePath("/daily-practice");
 }
 
@@ -75,30 +52,14 @@ export async function getPieces(): Promise<Piece[]> {
   return Array.isArray(data) ? data : [];
 }
 
-function nextDue(piece: Piece): string {
-  if (!piece.lastPlayed) return new Date().toISOString().slice(0, 10);
-  const interval = PROFICIENCY_INTERVAL_DAYS[piece.proficiency];
-  const d = new Date(piece.lastPlayed);
-  d.setDate(d.getDate() + interval);
-  return d.toISOString().slice(0, 10);
-}
-
 export async function getFamiliarPiecesDue(date: string): Promise<Piece[]> {
   const pieces = await getPieces();
-  const familiar = pieces.filter((p) => p.proficiency !== "new");
-  const due = familiar.filter((p) => nextDue(p) <= date);
-  due.sort((a, b) => nextDue(a).localeCompare(nextDue(b)));
-  return due;
+  return _getFamiliarPiecesDue(pieces, date);
 }
 
 export async function getNewPiece(): Promise<Piece | null> {
   const pieces = await getPieces();
-  const learning = pieces.filter(
-    (p) => p.proficiency === "new" || p.proficiency === "learning" || p.proficiency === "struggling"
-  );
-  if (learning.length === 0) return null;
-  learning.sort((a, b) => (b.createdAt ?? "").localeCompare(a.createdAt ?? ""));
-  return learning[0] ?? null;
+  return _getNewPiece(pieces);
 }
 
 export async function addPiece(formData: {

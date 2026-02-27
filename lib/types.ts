@@ -7,7 +7,6 @@ export const EXERCISE_CATEGORIES = [
 export type ExerciseCategory = (typeof EXERCISE_CATEGORIES)[number];
 
 export interface Exercise {
-  id: string;
   name: string;
   category: ExerciseCategory;
   focus: string;
@@ -45,5 +44,5 @@ export interface Piece {
 
 export interface DailyExerciseSet {
   date: string; // YYYY-MM-DD
-  exerciseIds: string[];
+  exerciseTitles: string[];
 }

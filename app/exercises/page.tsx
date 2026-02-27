@@ -14,10 +14,10 @@ const CATEGORY_LABELS: Record<ExerciseCategory, string> = {
 
 export default async function ExercisesPage() {
   const exercises = await getExercises();
-  const byCategory = new Map<ExerciseCategory, { id: string; name: string; focus: string }[]>();
+  const byCategory = new Map<ExerciseCategory, { name: string; focus: string }[]>();
   for (const e of exercises) {
     const list = byCategory.get(e.category) ?? [];
-    list.push({ id: e.id, name: e.name, focus: e.focus });
+    list.push({ name: e.name, focus: e.focus });
     byCategory.set(e.category, list);
   }
   const order: ExerciseCategory[] = [
@@ -41,7 +41,7 @@ export default async function ExercisesPage() {
             <h2 className={styles.categoryTitle}>{CATEGORY_LABELS[cat]}</h2>
             <ul className={styles.exerciseList}>
               {list.map((e) => (
-                <li key={e.id} className={styles.exerciseItem}>
+                <li key={e.name} className={styles.exerciseItem}>
                   <span className={styles.exerciseName}>{e.name}</span>
                   <span className={styles.exerciseFocus}>{e.focus}</span>
                 </li>
