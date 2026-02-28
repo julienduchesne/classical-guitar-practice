@@ -44,9 +44,8 @@ export function EditPieceForm({ piece }: { piece: Piece }) {
       currentCleanBpm,
       youtubeUrl,
     });
-    router.refresh();
-    const q = searchParams.toString();
-    router.push(q ? `/pieces?${q}` : "/pieces");
+    const password = searchParams.get("password");
+    router.push(password ? `/pieces?password=${encodeURIComponent(password)}` : "/pieces");
     setLoading(false);
   }
 

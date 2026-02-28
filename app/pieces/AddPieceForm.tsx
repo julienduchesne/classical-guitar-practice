@@ -1,12 +1,13 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { addPiece } from "@/app/actions";
 import styles from "./Pieces.module.css";
 
 export function AddPieceForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [loading, setLoading] = useState(false);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -19,8 +20,8 @@ export function AddPieceForm() {
     if (!title.trim()) return;
     setLoading(true);
     await addPiece({ title: title.trim(), troubleNotes: troubleNotes.trim() || undefined, goalBpm });
-    form.reset();
-    router.refresh();
+    const password = searchParams.get("password");
+    router.push(password ? `/pieces?password=${encodeURIComponent(password)}` : "/pieces");
     setLoading(false);
   }
 
