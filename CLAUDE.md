@@ -14,9 +14,9 @@ alwaysApply: true
 
 ## Data
 
-- **Vercel Blob** stores app data (exercises seed, pieces, daily exercise sets). Set **`BLOB_READ_WRITE_TOKEN`** in env (create a Blob store in the Vercel project to get the token).
-- Always pass `useCache: false` to `readJson` / `@vercel/blob` `get()` calls — the Vercel Blob CDN cache causes stale reads. Already enforced in `lib/blob.ts`.
-- Always call `noStore()` (from `next/cache`) at the top of any layout or server component that reads from Blob — `dynamic = "force-dynamic"` alone is not sufficient to bypass Next.js data cache in layouts.
+- **S3-compatible object storage** (OVHCloud) stores app data. Required env vars: `S3_ACCESS_KEY_ID`, `S3_SECRET_ACCESS_KEY`, `S3_ENDPOINT`, `S3_BUCKET`, `S3_REGION`.
+- All reads/writes go through `lib/blob.ts` (`readJson`, `writeJson`, `deleteBlob`) using `@aws-sdk/client-s3` with `forcePathStyle: true`.
+- Always call `noStore()` (from `next/cache`) at the top of any layout or server component that reads from storage — `dynamic = "force-dynamic"` alone is not sufficient to bypass Next.js data cache in layouts.
 
 ## Password protection
 

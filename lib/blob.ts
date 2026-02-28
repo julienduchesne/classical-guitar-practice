@@ -1,13 +1,34 @@
-import { del, get, put } from "@vercel/blob";
+import {
+  S3Client,
+  GetObjectCommand,
+  PutObjectCommand,
+  DeleteObjectCommand,
+} from "@aws-sdk/client-s3";
 
-const BLOB_PREFIX = "data/";
+const s3 = new S3Client({
+  endpoint: process.env.S3_ENDPOINT,
+  region: process.env.S3_REGION ?? "us-east-1",
+  credentials: {
+    accessKeyId: process.env.S3_ACCESS_KEY_ID!,
+    secretAccessKey: process.env.S3_SECRET_ACCESS_KEY!,
+  },
+  forcePathStyle: true,
+});
+
+const BUCKET = process.env.S3_BUCKET!;
+const KEY_PREFIX = "data/";
+
+function toKey(pathname: string): string {
+  return pathname.startsWith(KEY_PREFIX) ? pathname : `${KEY_PREFIX}${pathname}`;
+}
 
 export async function readJson<T>(pathname: string): Promise<T | null> {
-  const fullPath = pathname.startsWith(BLOB_PREFIX) ? pathname : `${BLOB_PREFIX}${pathname}`;
   try {
-    const result = await get(fullPath, { access: "private", useCache: false });
-    if (!result || result.statusCode !== 200 || !result.stream) return null;
-    const text = await new Response(result.stream).text();
+    const result = await s3.send(
+      new GetObjectCommand({ Bucket: BUCKET, Key: toKey(pathname) })
+    );
+    const text = await result.Body?.transformToString();
+    if (!text) return null;
     return JSON.parse(text) as T;
   } catch {
     return null;
@@ -15,17 +36,18 @@ export async function readJson<T>(pathname: string): Promise<T | null> {
 }
 
 export async function writeJson(pathname: string, data: unknown): Promise<void> {
-  const fullPath = pathname.startsWith(BLOB_PREFIX) ? pathname : `${BLOB_PREFIX}${pathname}`;
-  const body = JSON.stringify(data, null, 2);
-  await put(fullPath, body, {
-    access: "private",
-    contentType: "application/json",
-    addRandomSuffix: false,
-    allowOverwrite: true,
-  });
+  await s3.send(
+    new PutObjectCommand({
+      Bucket: BUCKET,
+      Key: toKey(pathname),
+      Body: JSON.stringify(data, null, 2),
+      ContentType: "application/json",
+    })
+  );
 }
 
 export async function deleteBlob(pathname: string): Promise<void> {
-  const fullPath = pathname.startsWith(BLOB_PREFIX) ? pathname : `${BLOB_PREFIX}${pathname}`;
-  await del(fullPath);
+  await s3.send(
+    new DeleteObjectCommand({ Bucket: BUCKET, Key: toKey(pathname) })
+  );
 }
