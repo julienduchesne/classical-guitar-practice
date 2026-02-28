@@ -2,6 +2,9 @@ import type { Metadata } from "next";
 import { Inter, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import { AppShell } from "@/components/AppShell";
+import { getActivePlaytimeSession } from "@/app/actions";
+
+export const dynamic = "force-dynamic";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -21,15 +24,16 @@ export const metadata: Metadata = {
   description: "Classical guitar practice app",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const activeSession = await getActivePlaytimeSession();
   return (
     <html lang="en" className={`${inter.variable} ${playfair.variable}`}>
       <body>
-        <AppShell>{children}</AppShell>
+        <AppShell activeSession={activeSession}>{children}</AppShell>
       </body>
     </html>
   );

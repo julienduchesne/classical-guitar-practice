@@ -55,3 +55,9 @@ export interface PracticeLogEntry {
   familiarPieceTitles: string[];
   createdAt: string; // ISO datetime
 }
+
+export interface PlaytimeSession {
+  id: string;
+  startTime: string; // ISO datetime
+  endTime: string | null; // null = in progress
+}

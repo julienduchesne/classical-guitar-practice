@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { readJson, writeJson } from "@/lib/blob";
 import { EXERCISES } from "@/lib/seed-exercises";
-import type { Exercise, Piece, PracticeLogEntry } from "@/lib/types";
+import type { Exercise, Piece, PracticeLogEntry, PlaytimeSession } from "@/lib/types";
 import {
   type Proficiency,
   PROFICIENCY_LEVELS,
@@ -162,4 +162,57 @@ export async function deletePracticeLogEntry(id: string): Promise<void> {
   revalidatePath("/practice-log");
 }
 
-export type { Exercise, Piece, Proficiency, PracticeLogEntry };
+const PLAYTIME_SESSIONS_PATH = "data/playtime-sessions.json";
+
+export async function getPlaytimeSessions(): Promise<PlaytimeSession[]> {
+  const data = await readJson<PlaytimeSession[]>(PLAYTIME_SESSIONS_PATH);
+  return Array.isArray(data) ? data : [];
+}
+
+export async function getActivePlaytimeSession(): Promise<PlaytimeSession | null> {
+  const sessions = await getPlaytimeSessions();
+  return sessions.find((s) => s.endTime === null) ?? null;
+}
+
+export async function startPlaytimeSession(): Promise<void> {
+  const sessions = await getPlaytimeSessions();
+  // Stop any lingering active session first
+  sessions.forEach((s) => {
+    if (s.endTime === null) s.endTime = new Date().toISOString();
+  });
+  sessions.push({ id: crypto.randomUUID(), startTime: new Date().toISOString(), endTime: null });
+  await writeJson(PLAYTIME_SESSIONS_PATH, sessions);
+  revalidatePath("/playtime");
+}
+
+export async function stopActivePlaytimeSession(): Promise<void> {
+  const sessions = await getPlaytimeSessions();
+  const active = sessions.find((s) => s.endTime === null);
+  if (!active) return;
+  active.endTime = new Date().toISOString();
+  await writeJson(PLAYTIME_SESSIONS_PATH, sessions);
+  revalidatePath("/playtime");
+}
+
+export async function deletePlaytimeSession(id: string): Promise<void> {
+  const sessions = await getPlaytimeSessions();
+  const filtered = sessions.filter((s) => s.id !== id);
+  if (filtered.length === sessions.length) return;
+  await writeJson(PLAYTIME_SESSIONS_PATH, filtered);
+  revalidatePath("/playtime");
+}
+
+export async function updatePlaytimeSession(
+  id: string,
+  updates: { startTime?: string; endTime?: string | null }
+): Promise<void> {
+  const sessions = await getPlaytimeSessions();
+  const i = sessions.findIndex((s) => s.id === id);
+  if (i === -1) return;
+  if (updates.startTime !== undefined) sessions[i].startTime = updates.startTime;
+  if (updates.endTime !== undefined) sessions[i].endTime = updates.endTime;
+  await writeJson(PLAYTIME_SESSIONS_PATH, sessions);
+  revalidatePath("/playtime");
+}
+
+export type { Exercise, Piece, Proficiency, PracticeLogEntry, PlaytimeSession };

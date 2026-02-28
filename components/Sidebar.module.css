@@ -74,6 +74,45 @@
   display: none;
 }
 
+.playtimeDivider {
+  border-top: 1px solid var(--color-border-light);
+  margin: var(--space-4) var(--space-5);
+}
+
+.playtimeSection {
+  padding: 0 var(--space-2);
+}
+
+.playtimeButton {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: calc(100% - var(--space-4));
+  padding: var(--space-3) var(--space-5);
+  margin: 0 var(--space-2);
+  background: none;
+  border-radius: var(--radius-md);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  transition: background-color var(--transition-fast), color var(--transition-fast);
+}
+
+.playtimeButton:hover:not(:disabled) {
+  background-color: rgba(139, 94, 60, 0.06);
+  color: var(--color-text);
+}
+
+.playtimeButtonActive {
+  color: var(--color-danger);
+  background-color: var(--color-danger-light);
+}
+
+.playtimeButtonActive:hover:not(:disabled) {
+  background-color: var(--color-danger);
+  color: white;
+}
+
 /* Mobile: slide-in drawer */
 @media (max-width: 767px) {
   .sidebar {
