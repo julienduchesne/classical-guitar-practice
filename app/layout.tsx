@@ -1,10 +1,9 @@
 import type { Metadata } from "next";
 import { Inter, Playfair_Display } from "next/font/google";
+import { unstable_noStore as noStore } from "next/cache";
 import "./globals.css";
 import { AppShell } from "@/components/AppShell";
 import { getActivePlaytimeSession } from "@/app/actions";
-
-export const dynamic = "force-dynamic";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -29,6 +28,7 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  noStore();
   const activeSession = await getActivePlaytimeSession();
   return (
     <html lang="en" className={`${inter.variable} ${playfair.variable}`}>

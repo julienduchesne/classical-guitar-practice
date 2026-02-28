@@ -1,14 +1,19 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useEffect, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { startPlaytimeSession, stopActivePlaytimeSession } from "@/app/actions";
 import styles from "./Sidebar.module.css";
 
-export function PlaytimeButton({ isActive: initialIsActive }: { isActive: boolean }) {
-  const [isActive, setIsActive] = useState(initialIsActive);
+export function PlaytimeButton({ isActive: serverIsActive }: { isActive: boolean }) {
+  const [isActive, setIsActive] = useState(serverIsActive);
   const [pending, startTransition] = useTransition();
   const router = useRouter();
+
+  // Sync with server prop when it changes (e.g. after router.refresh())
+  useEffect(() => {
+    setIsActive(serverIsActive);
+  }, [serverIsActive]);
 
   function handleToggle() {
     startTransition(async () => {
