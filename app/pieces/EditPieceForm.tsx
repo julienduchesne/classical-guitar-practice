@@ -3,8 +3,8 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState, useTransition } from "react";
 import { updatePiece, deleteSheetMusic } from "@/app/actions";
-import type { Piece, Proficiency } from "@/lib/types";
-import { PROFICIENCY_LEVELS } from "@/lib/types";
+import type { Piece, Proficiency, KnowledgeLevel } from "@/lib/types";
+import { PROFICIENCY_LEVELS, KNOWLEDGE_LEVELS } from "@/lib/types";
 import { Link } from "@/components/Link";
 import styles from "./Pieces.module.css";
 
@@ -14,6 +14,13 @@ const PROFICIENCY_LABELS: Record<Proficiency, string> = {
   learning: "Learning",
   comfortable: "Comfortable",
   very_proficient: "Very proficient",
+};
+
+const KNOWLEDGE_LABELS: Record<KnowledgeLevel, string> = {
+  none: "None",
+  partial: "Partial",
+  mostly: "Mostly",
+  by_heart: "By heart",
 };
 
 export function EditPieceForm({ piece }: { piece: Piece }) {
@@ -28,6 +35,8 @@ export function EditPieceForm({ piece }: { piece: Piece }) {
     const title = (form.elements.namedItem("edit-title") as HTMLInputElement).value;
     const proficiency = (form.elements.namedItem("edit-proficiency") as HTMLSelectElement)
       .value as Proficiency;
+    const knowledge = (form.elements.namedItem("edit-knowledge") as HTMLSelectElement)
+      .value as KnowledgeLevel;
     const troubleNotes = (form.elements.namedItem("edit-troubleNotes") as HTMLTextAreaElement).value;
     const goalBpmRaw = (form.elements.namedItem("edit-goalBpm") as HTMLInputElement).value;
     const currentCleanBpmRaw = (form.elements.namedItem("edit-currentCleanBpm") as HTMLInputElement)
@@ -39,6 +48,7 @@ export function EditPieceForm({ piece }: { piece: Piece }) {
     await updatePiece(piece.id, {
       title: title.trim(),
       proficiency,
+      knowledge,
       troubleNotes: troubleNotes.trim(),
       goalBpm,
       currentCleanBpm,
@@ -61,7 +71,7 @@ export function EditPieceForm({ piece }: { piece: Piece }) {
         />
       </div>
       <div className={styles.field}>
-        <label htmlFor="edit-proficiency">Proficiency</label>
+        <label htmlFor="edit-proficiency">Playing level</label>
         <select
           id="edit-proficiency"
           name="edit-proficiency"
@@ -70,6 +80,20 @@ export function EditPieceForm({ piece }: { piece: Piece }) {
           {PROFICIENCY_LEVELS.map((p) => (
             <option key={p} value={p}>
               {PROFICIENCY_LABELS[p]}
+            </option>
+          ))}
+        </select>
+      </div>
+      <div className={styles.field}>
+        <label htmlFor="edit-knowledge">Knowledge (memorization)</label>
+        <select
+          id="edit-knowledge"
+          name="edit-knowledge"
+          defaultValue={piece.knowledge ?? "none"}
+        >
+          {KNOWLEDGE_LEVELS.map((k) => (
+            <option key={k} value={k}>
+              {KNOWLEDGE_LABELS[k]}
             </option>
           ))}
         </select>

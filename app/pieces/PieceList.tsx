@@ -4,7 +4,7 @@ import { Suspense } from "react";
 import { useRouter } from "next/navigation";
 import { Link } from "@/components/Link";
 import { recordPlay } from "@/app/actions";
-import type { Piece, Proficiency } from "@/lib/types";
+import type { Piece, Proficiency, KnowledgeLevel } from "@/lib/types";
 import styles from "./Pieces.module.css";
 import { SheetMusicControls } from "./SheetMusicControls";
 
@@ -22,6 +22,13 @@ const PROFICIENCY_CLASS: Record<Proficiency, string> = {
   learning: styles.proficiencyLearning,
   comfortable: styles.proficiencyComfortable,
   very_proficient: styles.proficiencyVeryProficient,
+};
+
+const KNOWLEDGE_LABELS: Record<KnowledgeLevel, string> = {
+  none: "None",
+  partial: "Partial",
+  mostly: "Mostly",
+  by_heart: "By heart",
 };
 
 export function PieceList({
@@ -59,6 +66,12 @@ export function PieceList({
               <span className={styles.metaLabel}>Level</span>
               <span className={`${styles.proficiency} ${PROFICIENCY_CLASS[p.proficiency]}`}>
                 {PROFICIENCY_LABELS[p.proficiency]}
+              </span>
+            </span>
+            <span className={styles.metaItem}>
+              <span className={styles.metaLabel}>Knowledge</span>
+              <span className={styles.metaValue}>
+                {KNOWLEDGE_LABELS[p.knowledge ?? "none"]}
               </span>
             </span>
             <span className={styles.metaItem}>

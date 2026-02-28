@@ -25,6 +25,9 @@ export function EditPlaytimeForm({ session }: { session: PlaytimeSession }) {
   const [endTime, setEndTime] = useState(() =>
     session.endTime ? toLocalDatetimeValue(session.endTime) : ""
   );
+  const [pausedMinutes, setPausedMinutes] = useState(() =>
+    Math.round((session.totalPauseTime ?? 0) / 60000)
+  );
   const [pending, startTransition] = useTransition();
   const router = useRouter();
 
@@ -34,6 +37,7 @@ export function EditPlaytimeForm({ session }: { session: PlaytimeSession }) {
       await updatePlaytimeSession(session.id, {
         startTime: new Date(startTime).toISOString(),
         endTime: endTime ? new Date(endTime).toISOString() : null,
+        totalPauseTime: pausedMinutes * 60000,
       });
       router.push("/playtime");
       router.refresh();
@@ -59,6 +63,16 @@ export function EditPlaytimeForm({ session }: { session: PlaytimeSession }) {
           type="datetime-local"
           value={endTime}
           onChange={(e) => setEndTime(e.target.value)}
+        />
+      </div>
+      <div className={styles.field}>
+        <label htmlFor="pausedMinutes">Paused time (minutes)</label>
+        <input
+          id="pausedMinutes"
+          type="number"
+          min={0}
+          value={pausedMinutes}
+          onChange={(e) => setPausedMinutes(Number(e.target.value))}
         />
       </div>
       <div className={styles.formActions}>

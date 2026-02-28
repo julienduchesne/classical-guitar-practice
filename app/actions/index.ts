@@ -7,6 +7,8 @@ import type { Exercise, Piece, PlaytimeSession } from "@/lib/types";
 import {
   type Proficiency,
   PROFICIENCY_LEVELS,
+  type KnowledgeLevel,
+  KNOWLEDGE_LEVELS,
 } from "@/lib/types";
 import {
   resolveExercisesByTitle,
@@ -83,8 +85,6 @@ export async function getNewPiece(): Promise<Piece | null> {
 
 export async function addPiece(formData: {
   title: string;
-  troubleNotes?: string;
-  goalBpm?: number | null;
 }): Promise<void> {
   const pieces = await getPieces();
   const now = new Date().toISOString();
@@ -94,8 +94,8 @@ export async function addPiece(formData: {
     proficiency: "new",
     lastPlayed: null,
     playCount: 0,
-    troubleNotes: formData.troubleNotes?.trim() ?? "",
-    goalBpm: formData.goalBpm ?? null,
+    troubleNotes: "",
+    goalBpm: null,
     currentCleanBpm: null,
     createdAt: now,
   };
@@ -107,7 +107,7 @@ export async function addPiece(formData: {
 
 export async function updatePiece(
   id: string,
-  updates: Partial<Pick<Piece, "title" | "proficiency" | "troubleNotes" | "goalBpm" | "currentCleanBpm" | "youtubeUrl">>
+  updates: Partial<Pick<Piece, "title" | "proficiency" | "knowledge" | "troubleNotes" | "goalBpm" | "currentCleanBpm" | "youtubeUrl">>
 ): Promise<void> {
   const pieces = await getPieces();
   const i = pieces.findIndex((p) => p.id === id);
@@ -115,6 +115,9 @@ export async function updatePiece(
   if (updates.title != null) pieces[i].title = updates.title.trim();
   if (updates.proficiency != null && PROFICIENCY_LEVELS.includes(updates.proficiency)) {
     pieces[i].proficiency = updates.proficiency;
+  }
+  if (updates.knowledge != null && KNOWLEDGE_LEVELS.includes(updates.knowledge)) {
+    pieces[i].knowledge = updates.knowledge;
   }
   if (updates.troubleNotes != null) pieces[i].troubleNotes = updates.troubleNotes.trim();
   if (updates.goalBpm != null) pieces[i].goalBpm = updates.goalBpm;
@@ -251,13 +254,14 @@ export async function deletePlaytimeSession(id: string): Promise<void> {
 
 export async function updatePlaytimeSession(
   id: string,
-  updates: { startTime?: string; endTime?: string | null }
+  updates: { startTime?: string; endTime?: string | null; totalPauseTime?: number }
 ): Promise<void> {
   const sessions = await getPlaytimeSessions();
   const i = sessions.findIndex((s) => s.id === id);
   if (i === -1) return;
   if (updates.startTime !== undefined) sessions[i].startTime = updates.startTime;
   if (updates.endTime !== undefined) sessions[i].endTime = updates.endTime;
+  if (updates.totalPauseTime !== undefined) sessions[i].totalPauseTime = updates.totalPauseTime;
   await writeJson(PLAYTIME_SESSIONS_PATH, sessions);
   revalidatePath("/playtime");
 }

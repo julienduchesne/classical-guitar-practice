@@ -30,10 +30,19 @@ export const PROFICIENCY_INTERVAL_DAYS: Record<Proficiency, number> = {
   very_proficient: 14,
 };
 
+export const KNOWLEDGE_LEVELS = [
+  "none",
+  "partial",
+  "mostly",
+  "by_heart",
+] as const;
+export type KnowledgeLevel = (typeof KNOWLEDGE_LEVELS)[number];
+
 export interface Piece {
   id: string;
   title: string;
   proficiency: Proficiency;
+  knowledge?: KnowledgeLevel;
   lastPlayed: string | null; // ISO date
   playCount: number;
   troubleNotes: string;

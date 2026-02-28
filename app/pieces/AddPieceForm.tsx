@@ -14,12 +14,9 @@ export function AddPieceForm() {
     e.preventDefault();
     const form = e.currentTarget;
     const title = (form.elements.namedItem("title") as HTMLInputElement).value;
-    const troubleNotes = (form.elements.namedItem("troubleNotes") as HTMLTextAreaElement).value;
-    const goalBpmRaw = (form.elements.namedItem("goalBpm") as HTMLInputElement).value;
-    const goalBpm = goalBpmRaw ? Number(goalBpmRaw) : null;
     if (!title.trim()) return;
     setLoading(true);
-    await addPiece({ title: title.trim(), troubleNotes: troubleNotes.trim() || undefined, goalBpm });
+    await addPiece({ title: title.trim() });
     const password = searchParams.get("password");
     router.push(password ? `/pieces?password=${encodeURIComponent(password)}` : "/pieces");
     setLoading(false);
@@ -30,14 +27,6 @@ export function AddPieceForm() {
       <div className={styles.field}>
         <label htmlFor="add-title">Title</label>
         <input id="add-title" name="title" required />
-      </div>
-      <div className={styles.field}>
-        <label htmlFor="add-trouble">Trouble notes (bar numbers, etc.)</label>
-        <textarea id="add-trouble" name="troubleNotes" rows={2} />
-      </div>
-      <div className={styles.field}>
-        <label htmlFor="add-goalBpm">Goal BPM (optional)</label>
-        <input id="add-goalBpm" name="goalBpm" type="number" min={1} />
       </div>
       <button type="submit" disabled={loading} className={styles.primaryButton}>
         {loading ? "Adding…" : "Add piece"}
