@@ -3,6 +3,7 @@ import {
   GetObjectCommand,
   PutObjectCommand,
   DeleteObjectCommand,
+  ListObjectsV2Command,
 } from "@aws-sdk/client-s3";
 
 const s3 = new S3Client({
@@ -50,4 +51,18 @@ export async function deleteBlob(pathname: string): Promise<void> {
   await s3.send(
     new DeleteObjectCommand({ Bucket: BUCKET, Key: toKey(pathname) })
   );
+}
+
+export async function listBlobs(prefix: string): Promise<string[]> {
+  try {
+    const result = await s3.send(
+      new ListObjectsV2Command({ Bucket: BUCKET, Prefix: toKey(prefix) })
+    );
+    return (result.Contents ?? [])
+      .map((obj) => obj.Key ?? "")
+      .filter(Boolean)
+      .map((key) => key.replace(KEY_PREFIX, ""));
+  } catch {
+    return [];
+  }
 }

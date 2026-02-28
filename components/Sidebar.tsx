@@ -6,13 +6,16 @@ import { PlaytimeButton } from "@/components/PlaytimeButton";
 import styles from "./Sidebar.module.css";
 import type { PlaytimeSession } from "@/lib/types";
 
-const nav = [
+type NavItem = { href: string; label: string; exact?: boolean; sub?: boolean };
+
+const nav: NavItem[] = [
   { href: "/daily-practice", label: "Daily Practice" },
-  { href: "/exercises", label: "Exercises" },
+  { href: "/exercises", label: "Exercises", exact: true },
+  { href: "/exercises/daily-pick", label: "Daily pick", sub: true },
   { href: "/pieces", label: "Pieces" },
   { href: "/practice-log", label: "Practice Log" },
   { href: "/playtime", label: "Playtime" },
-] as const;
+];
 
 export function Sidebar({
   isOpen,
@@ -44,14 +47,15 @@ export function Sidebar({
       </div>
 
       <ul className={styles.navList}>
-        {nav.map(({ href, label }) => {
-          const isActive =
-            pathname === href || pathname.startsWith(href + "/");
+        {nav.map(({ href, label, exact, sub }) => {
+          const isActive = exact
+            ? pathname === href
+            : pathname === href || pathname.startsWith(href + "/");
           return (
             <li key={href} className={styles.navItem}>
               <Link
                 href={href}
-                className={`${styles.navLink} ${isActive ? styles.navLinkActive : ""}`}
+                className={`${sub ? styles.navSubLink : styles.navLink} ${isActive ? styles.navLinkActive : ""}`}
                 onClick={onClose}
               >
                 {label}

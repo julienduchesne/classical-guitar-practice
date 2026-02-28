@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { readJson, writeJson } from "@/lib/blob";
+import { readJson, writeJson, listBlobs } from "@/lib/blob";
 import { EXERCISES } from "@/lib/seed-exercises";
 import type { Exercise, Piece, PracticeLogEntry, PlaytimeSession } from "@/lib/types";
 import {
@@ -46,6 +46,26 @@ export async function regenerateTodayExercises(date: string): Promise<void> {
   const path = dailyPath(date);
   await writeJson(path, { date, exerciseTitles: [] });
   revalidatePath("/daily-practice");
+  revalidatePath("/exercises/daily-pick");
+}
+
+export async function getDailyPickHistory(): Promise<{ date: string; exercises: Exercise[] }[]> {
+  const keys = await listBlobs("daily-");
+  const entries = await Promise.all(
+    keys.map(async (key) => {
+      const dateMatch = key.match(/daily-(\d{4}-\d{2}-\d{2})\.json$/);
+      if (!dateMatch) return null;
+      const date = dateMatch[1];
+      const data = await readJson<{ date: string; exerciseTitles: string[] }>(key);
+      if (!data?.exerciseTitles?.length) return null;
+      const exercises = resolveExercisesByTitle(EXERCISES, data.exerciseTitles);
+      if (exercises.length === 0) return null;
+      return { date, exercises };
+    })
+  );
+  return entries
+    .filter((e): e is { date: string; exercises: Exercise[] } => e !== null)
+    .sort((a, b) => b.date.localeCompare(a.date));
 }
 
 export async function getPieces(): Promise<Piece[]> {

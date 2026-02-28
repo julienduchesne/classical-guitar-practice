@@ -31,7 +31,7 @@ export default async function ExercisesPage() {
     <main>
       <h1>Exercises</h1>
       <p className={styles.intro}>
-        <Link href="/daily-practice">Use these in daily practice</Link>
+        <Link href="/exercises/daily-pick">See today's daily pick</Link>
       </p>
       {order.map((cat) => {
         const list = byCategory.get(cat) ?? [];
