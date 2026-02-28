@@ -40,6 +40,7 @@ export interface Piece {
   goalBpm: number | null;
   currentCleanBpm: number | null;
   createdAt: string; // ISO
+  hasSheetMusic?: boolean;
 }
 
 export interface DailyExerciseSet {

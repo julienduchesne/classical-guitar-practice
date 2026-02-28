@@ -1,0 +1,118 @@
+"use client";
+
+import { useRef, useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
+import { uploadSheetMusic, deleteSheetMusic } from "@/app/actions";
+import styles from "./Pieces.module.css";
+
+const MAX_MB = 20;
+
+function pdfUrl(id: string, password: string | null): string {
+  const base = `/api/pieces/${id}/sheet-music`;
+  return password ? `${base}?password=${encodeURIComponent(password)}` : base;
+}
+
+export function SheetMusicControls({
+  pieceId,
+  hasSheetMusic,
+}: {
+  pieceId: string;
+  hasSheetMusic: boolean;
+}) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const password = searchParams.get("password");
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [uploadPending, startUpload] = useTransition();
+  const [deletePending, startDelete] = useTransition();
+
+  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setError(null);
+    if (file.type !== "application/pdf") {
+      setError("Only PDF files are accepted.");
+      e.target.value = "";
+      return;
+    }
+    if (file.size > MAX_MB * 1024 * 1024) {
+      setError(`File exceeds ${MAX_MB} MB limit.`);
+      e.target.value = "";
+      return;
+    }
+    const fd = new FormData();
+    fd.append("pdf", file);
+    startUpload(async () => {
+      try {
+        await uploadSheetMusic(pieceId, fd);
+        router.refresh();
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Upload failed.");
+      } finally {
+        if (fileInputRef.current) fileInputRef.current.value = "";
+      }
+    });
+  }
+
+  function handleDelete() {
+    setError(null);
+    startDelete(async () => {
+      try {
+        await deleteSheetMusic(pieceId);
+        router.refresh();
+      } catch {
+        setError("Delete failed.");
+      }
+    });
+  }
+
+  const isPending = uploadPending || deletePending;
+
+  return (
+    <span className={styles.sheetMusicControls}>
+      {hasSheetMusic ? (
+        <>
+          <a
+            href={pdfUrl(pieceId, password)}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={styles.sheetMusicLink}
+          >
+            View PDF
+          </a>
+          <button
+            type="button"
+            onClick={handleDelete}
+            disabled={isPending}
+            className={styles.sheetMusicDelete}
+          >
+            {deletePending ? "…" : "Delete PDF"}
+          </button>
+        </>
+      ) : (
+        <>
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={isPending}
+            className={styles.sheetMusicUpload}
+          >
+            {uploadPending ? "Uploading…" : "Upload PDF"}
+          </button>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="application/pdf"
+            className={styles.hiddenFileInput}
+            onChange={handleFileChange}
+            aria-label="Upload sheet music PDF"
+          />
+        </>
+      )}
+      {error && <span className={styles.sheetMusicError}>{error}</span>}
+    </span>
+  );
+}

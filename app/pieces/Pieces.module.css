@@ -227,6 +227,76 @@
   color: #1565C0;
 }
 
+/* ===== SHEET MUSIC ===== */
+.sheetMusicControls {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.sheetMusicLink {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--color-link);
+  white-space: nowrap;
+}
+
+.sheetMusicLink:hover {
+  color: var(--color-link-hover);
+  text-decoration: underline;
+}
+
+.sheetMusicUpload {
+  padding: var(--space-2) var(--space-3);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--color-primary);
+  background: var(--color-primary-light);
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  white-space: nowrap;
+}
+
+.sheetMusicUpload:hover {
+  background: var(--color-primary-hover);
+  color: white;
+}
+
+.sheetMusicUpload:disabled {
+  opacity: 0.6;
+}
+
+.sheetMusicDelete {
+  padding: var(--space-2) var(--space-3);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--color-danger);
+  background: var(--color-danger-light);
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  white-space: nowrap;
+}
+
+.sheetMusicDelete:hover {
+  background: var(--color-danger);
+  color: white;
+}
+
+.sheetMusicDelete:disabled {
+  opacity: 0.6;
+}
+
+.sheetMusicError {
+  font-size: 0.75rem;
+  color: var(--color-danger);
+  width: 100%;
+}
+
+.hiddenFileInput {
+  display: none;
+}
+
 /* ===== RESPONSIVE ===== */
 @media (max-width: 640px) {
   .pieceCard {

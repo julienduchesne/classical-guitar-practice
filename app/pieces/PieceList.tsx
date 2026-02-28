@@ -1,10 +1,12 @@
 "use client";
 
+import { Suspense } from "react";
 import { useRouter } from "next/navigation";
 import { Link } from "@/components/Link";
 import { recordPlay } from "@/app/actions";
 import type { Piece, Proficiency } from "@/lib/types";
 import styles from "./Pieces.module.css";
+import { SheetMusicControls } from "./SheetMusicControls";
 
 const PROFICIENCY_LABELS: Record<Proficiency, string> = {
   new: "New",
@@ -83,6 +85,12 @@ export function PieceList({
             ) : (
               <span className={styles.editingBadge}>(editing)</span>
             )}
+            <Suspense fallback={null}>
+              <SheetMusicControls
+                pieceId={p.id}
+                hasSheetMusic={p.hasSheetMusic ?? false}
+              />
+            </Suspense>
           </span>
         </li>
       ))}

@@ -53,6 +53,32 @@ export async function deleteBlob(pathname: string): Promise<void> {
   );
 }
 
+export async function writeBinary(
+  pathname: string,
+  body: Buffer | Uint8Array,
+  contentType: string
+): Promise<void> {
+  await s3.send(
+    new PutObjectCommand({
+      Bucket: BUCKET,
+      Key: toKey(pathname),
+      Body: body,
+      ContentType: contentType,
+    })
+  );
+}
+
+export async function readBinary(pathname: string): Promise<ReadableStream | null> {
+  try {
+    const result = await s3.send(
+      new GetObjectCommand({ Bucket: BUCKET, Key: toKey(pathname) })
+    );
+    return result.Body?.transformToWebStream() ?? null;
+  } catch {
+    return null;
+  }
+}
+
 export async function listBlobs(prefix: string): Promise<string[]> {
   try {
     const result = await s3.send(

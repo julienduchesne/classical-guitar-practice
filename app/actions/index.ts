@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { readJson, writeJson, listBlobs } from "@/lib/blob";
+import { readJson, writeJson, listBlobs, writeBinary, deleteBlob } from "@/lib/blob";
 import { EXERCISES } from "@/lib/seed-exercises";
 import type { Exercise, Piece, PlaytimeSession } from "@/lib/types";
 import {
@@ -143,6 +143,35 @@ export async function deletePiece(id: string): Promise<void> {
   await writeJson(PIECES_PATH, filtered);
   revalidatePath("/pieces");
   revalidatePath("/sheet-music");
+}
+
+export async function uploadSheetMusic(
+  pieceId: string,
+  formData: FormData
+): Promise<void> {
+  const file = formData.get("pdf");
+  if (!(file instanceof File)) return;
+  if (file.size > 20 * 1024 * 1024) throw new Error("PDF must be 20 MB or smaller.");
+  const buffer = Buffer.from(await file.arrayBuffer());
+  await writeBinary(`sheet-music/${pieceId}.pdf`, buffer, "application/pdf");
+  const pieces = await getPieces();
+  const i = pieces.findIndex((p) => p.id === pieceId);
+  if (i !== -1) {
+    pieces[i].hasSheetMusic = true;
+    await writeJson(PIECES_PATH, pieces);
+  }
+  revalidatePath("/pieces");
+}
+
+export async function deleteSheetMusic(pieceId: string): Promise<void> {
+  await deleteBlob(`sheet-music/${pieceId}.pdf`);
+  const pieces = await getPieces();
+  const i = pieces.findIndex((p) => p.id === pieceId);
+  if (i !== -1) {
+    pieces[i].hasSheetMusic = false;
+    await writeJson(PIECES_PATH, pieces);
+  }
+  revalidatePath("/pieces");
 }
 
 const PLAYTIME_SESSIONS_PATH = "data/playtime-sessions.json";
