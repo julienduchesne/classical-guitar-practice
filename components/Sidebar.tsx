@@ -65,7 +65,7 @@ export function Sidebar({
 
       <div className={styles.playtimeDivider} />
       <div className={styles.playtimeSection}>
-        <PlaytimeButton isActive={activeSession !== null} />
+        <PlaytimeButton activeStartTime={activeSession?.startTime ?? null} />
       </div>
     </nav>
   );
