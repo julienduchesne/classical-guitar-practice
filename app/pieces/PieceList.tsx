@@ -31,6 +31,13 @@ const KNOWLEDGE_LABELS: Record<KnowledgeLevel, string> = {
   by_heart: "By heart",
 };
 
+const KNOWLEDGE_CLASS: Record<KnowledgeLevel, string> = {
+  none: styles.knowledgeNone,
+  partial: styles.knowledgePartial,
+  mostly: styles.knowledgeMostly,
+  by_heart: styles.knowledgeByHeart,
+};
+
 export function PieceList({
   pieces,
   editId,
@@ -70,7 +77,7 @@ export function PieceList({
             </span>
             <span className={styles.metaItem}>
               <span className={styles.metaLabel}>Knowledge</span>
-              <span className={styles.metaValue}>
+              <span className={`${styles.knowledge} ${KNOWLEDGE_CLASS[p.knowledge ?? "none"]}`}>
                 {KNOWLEDGE_LABELS[p.knowledge ?? "none"]}
               </span>
             </span>
