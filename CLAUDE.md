@@ -15,6 +15,8 @@ alwaysApply: true
 ## Data
 
 - **Vercel Blob** stores app data (exercises seed, pieces, daily exercise sets). Set **`BLOB_READ_WRITE_TOKEN`** in env (create a Blob store in the Vercel project to get the token).
+- Always pass `useCache: false` to `readJson` / `@vercel/blob` `get()` calls — the Vercel Blob CDN cache causes stale reads. Already enforced in `lib/blob.ts`.
+- Always call `noStore()` (from `next/cache`) at the top of any layout or server component that reads from Blob — `dynamic = "force-dynamic"` alone is not sufficient to bypass Next.js data cache in layouts.
 
 ## Password protection
 
