@@ -4,6 +4,7 @@ import { getPlaytimeSessions } from "@/app/actions";
 import { EditPlaytimeForm } from "./EditPlaytimeForm";
 import { DeletePlaytimeButton } from "./DeletePlaytimeButton";
 import { Link } from "@/components/Link";
+import { Modal } from "@/components/Modal";
 import type { PlaytimeSession } from "@/lib/types";
 import styles from "./Playtime.module.css";
 
@@ -44,10 +45,9 @@ export default async function PlaytimePage({ searchParams }: Props) {
       <h1>Playtime</h1>
 
       {sessionToEdit && (
-        <section className={styles.section}>
-          <h2 className={styles.sectionTitle}>Edit session</h2>
+        <Modal closePath="/playtime">
           <EditPlaytimeForm session={sessionToEdit} />
-        </section>
+        </Modal>
       )}
 
       {sorted.length === 0 ? (

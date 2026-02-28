@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { updatePlaytimeSession } from "@/app/actions";
 import { Link } from "@/components/Link";
 import type { PlaytimeSession } from "@/lib/types";
@@ -30,6 +30,7 @@ export function EditPlaytimeForm({ session }: { session: PlaytimeSession }) {
   );
   const [pending, startTransition] = useTransition();
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -39,7 +40,8 @@ export function EditPlaytimeForm({ session }: { session: PlaytimeSession }) {
         endTime: endTime ? new Date(endTime).toISOString() : null,
         totalPauseTime: pausedMinutes * 60000,
       });
-      router.push("/playtime");
+      const password = searchParams.get("password");
+      router.push(password ? `/playtime?password=${encodeURIComponent(password)}` : "/playtime");
       router.refresh();
     });
   }

@@ -2,32 +2,47 @@
 
 import { Suspense, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import styles from "./Pieces.module.css";
+import styles from "./Modal.module.css";
 
-function ModalInner({ children }: { children: React.ReactNode }) {
+function ModalInner({
+  children,
+  closePath,
+}: {
+  children: React.ReactNode;
+  closePath: string;
+}) {
   const router = useRouter();
   const searchParams = useSearchParams();
 
   function close() {
     const password = searchParams.get("password");
-    router.push(password ? `/pieces?password=${encodeURIComponent(password)}` : "/pieces");
+    router.push(
+      password ? `${closePath}?password=${encodeURIComponent(password)}` : closePath
+    );
   }
 
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
         const password = searchParams.get("password");
-        router.push(password ? `/pieces?password=${encodeURIComponent(password)}` : "/pieces");
+        router.push(
+          password ? `${closePath}?password=${encodeURIComponent(password)}` : closePath
+        );
       }
     };
     document.addEventListener("keydown", onKeyDown);
     return () => document.removeEventListener("keydown", onKeyDown);
-  }, [searchParams, router]);
+  }, [searchParams, router, closePath]);
 
   return (
     <div className={styles.modalBackdrop} onClick={close}>
       <div className={styles.modalDialog} onClick={(e) => e.stopPropagation()}>
-        <button type="button" className={styles.modalClose} onClick={close} aria-label="Close">
+        <button
+          type="button"
+          className={styles.modalClose}
+          onClick={close}
+          aria-label="Close"
+        >
           ×
         </button>
         {children}
@@ -36,10 +51,16 @@ function ModalInner({ children }: { children: React.ReactNode }) {
   );
 }
 
-export function Modal({ children }: { children: React.ReactNode }) {
+export function Modal({
+  children,
+  closePath,
+}: {
+  children: React.ReactNode;
+  closePath: string;
+}) {
   return (
     <Suspense fallback={null}>
-      <ModalInner>{children}</ModalInner>
+      <ModalInner closePath={closePath}>{children}</ModalInner>
     </Suspense>
   );
 }

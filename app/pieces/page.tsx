@@ -1,6 +1,6 @@
 import { getPieces } from "@/app/actions";
 import { AddPieceForm } from "./AddPieceForm";
-import { Modal } from "./Modal";
+import { Modal } from "@/components/Modal";
 
 export const dynamic = "force-dynamic";
 import { PieceList } from "./PieceList";
@@ -24,13 +24,13 @@ export default async function PiecesPage({ searchParams }: Props) {
       <h1>Pieces</h1>
 
       {showAdd && (
-        <Modal>
+        <Modal closePath="/pieces">
           <AddPieceForm />
         </Modal>
       )}
 
       {pieceToEdit && (
-        <Modal>
+        <Modal closePath="/pieces">
           <EditPieceForm piece={pieceToEdit} />
         </Modal>
       )}
