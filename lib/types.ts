@@ -41,6 +41,7 @@ export interface Piece {
   currentCleanBpm: number | null;
   createdAt: string; // ISO
   hasSheetMusic?: boolean;
+  youtubeUrl?: string;
 }
 
 export interface DailyExerciseSet {

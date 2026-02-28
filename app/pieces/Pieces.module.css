@@ -227,6 +227,24 @@
   color: #1565C0;
 }
 
+/* ===== YOUTUBE ===== */
+.youtubeLink {
+  padding: var(--space-2) var(--space-3);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: #c00;
+  background: #fff0f0;
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  white-space: nowrap;
+  text-decoration: none;
+}
+
+.youtubeLink:hover {
+  background: #c00;
+  color: white;
+}
+
 /* ===== SHEET MUSIC ===== */
 .sheetMusicControls {
   display: flex;

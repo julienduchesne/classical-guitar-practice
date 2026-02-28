@@ -31,6 +31,7 @@ export function EditPieceForm({ piece }: { piece: Piece }) {
     const goalBpmRaw = (form.elements.namedItem("edit-goalBpm") as HTMLInputElement).value;
     const currentCleanBpmRaw = (form.elements.namedItem("edit-currentCleanBpm") as HTMLInputElement)
       .value;
+    const youtubeUrl = (form.elements.namedItem("edit-youtubeUrl") as HTMLInputElement).value;
     const goalBpm = goalBpmRaw ? Number(goalBpmRaw) : null;
     const currentCleanBpm = currentCleanBpmRaw ? Number(currentCleanBpmRaw) : null;
     setLoading(true);
@@ -40,6 +41,7 @@ export function EditPieceForm({ piece }: { piece: Piece }) {
       troubleNotes: troubleNotes.trim(),
       goalBpm,
       currentCleanBpm,
+      youtubeUrl,
     });
     router.refresh();
     const q = searchParams.toString();
@@ -102,6 +104,16 @@ export function EditPieceForm({ piece }: { piece: Piece }) {
             defaultValue={piece.currentCleanBpm ?? ""}
           />
         </div>
+      </div>
+      <div className={styles.field}>
+        <label htmlFor="edit-youtubeUrl">YouTube URL</label>
+        <input
+          id="edit-youtubeUrl"
+          name="edit-youtubeUrl"
+          type="url"
+          placeholder="https://www.youtube.com/watch?v=..."
+          defaultValue={piece.youtubeUrl ?? ""}
+        />
       </div>
       <div className={styles.buttonRow}>
         <button type="submit" disabled={loading} className={styles.primaryButton}>

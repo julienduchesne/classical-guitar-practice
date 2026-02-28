@@ -85,6 +85,16 @@ export function PieceList({
             ) : (
               <span className={styles.editingBadge}>(editing)</span>
             )}
+            {p.youtubeUrl && (
+              <a
+                href={p.youtubeUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={styles.youtubeLink}
+              >
+                ▶ YouTube
+              </a>
+            )}
             <Suspense fallback={null}>
               <SheetMusicControls
                 pieceId={p.id}

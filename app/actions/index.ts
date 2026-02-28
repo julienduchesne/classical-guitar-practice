@@ -107,7 +107,7 @@ export async function addPiece(formData: {
 
 export async function updatePiece(
   id: string,
-  updates: Partial<Pick<Piece, "title" | "proficiency" | "troubleNotes" | "goalBpm" | "currentCleanBpm">>
+  updates: Partial<Pick<Piece, "title" | "proficiency" | "troubleNotes" | "goalBpm" | "currentCleanBpm" | "youtubeUrl">>
 ): Promise<void> {
   const pieces = await getPieces();
   const i = pieces.findIndex((p) => p.id === id);
@@ -119,6 +119,7 @@ export async function updatePiece(
   if (updates.troubleNotes != null) pieces[i].troubleNotes = updates.troubleNotes.trim();
   if (updates.goalBpm != null) pieces[i].goalBpm = updates.goalBpm;
   if (updates.currentCleanBpm != null) pieces[i].currentCleanBpm = updates.currentCleanBpm;
+  if ("youtubeUrl" in updates) pieces[i].youtubeUrl = updates.youtubeUrl?.trim() || undefined;
   await writeJson(PIECES_PATH, pieces);
   revalidatePath("/pieces");
   revalidatePath("/sheet-music");
