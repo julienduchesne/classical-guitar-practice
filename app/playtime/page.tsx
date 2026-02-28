@@ -12,9 +12,13 @@ function formatDisplay(iso: string): string {
   return iso.slice(0, 16).replace("T", " ");
 }
 
-function formatDuration(startTime: string, endTime: string): string {
-  const ms = new Date(endTime).getTime() - new Date(startTime).getTime();
-  const totalMinutes = Math.floor(ms / 60000);
+function formatDuration(session: PlaytimeSession): string {
+  if (!session.endTime) return "";
+  const ms =
+    new Date(session.endTime).getTime() -
+    new Date(session.startTime).getTime() -
+    (session.totalPauseTime ?? 0);
+  const totalMinutes = Math.floor(Math.max(0, ms) / 60000);
   const hours = Math.floor(totalMinutes / 60);
   const minutes = totalMinutes % 60;
   if (hours > 0) return `${hours}h ${minutes}m`;
@@ -75,11 +79,13 @@ export default async function PlaytimePage({ searchParams }: Props) {
                         </span>
                       </span>
                       <span className={styles.duration}>
-                        {formatDuration(session.startTime, session.endTime)}
+                        {formatDuration(session)}
                       </span>
                     </>
                   ) : (
-                    <span className={styles.badge}>In progress</span>
+                    <span className={styles.badge}>
+                      {session.pausedSince ? "Paused" : "In progress"}
+                    </span>
                   )}
                 </div>
                 <div className={styles.actions}>

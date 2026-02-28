@@ -53,4 +53,6 @@ export interface PlaytimeSession {
   id: string;
   startTime: string; // ISO datetime
   endTime: string | null; // null = in progress
+  pausedSince: string | null; // ISO datetime when paused, null if running
+  totalPauseTime: number; // accumulated pause duration in milliseconds
 }

@@ -193,7 +193,13 @@ export async function startPlaytimeSession(): Promise<void> {
   sessions.forEach((s) => {
     if (s.endTime === null) s.endTime = new Date().toISOString();
   });
-  sessions.push({ id: crypto.randomUUID(), startTime: new Date().toISOString(), endTime: null });
+  sessions.push({
+    id: crypto.randomUUID(),
+    startTime: new Date().toISOString(),
+    endTime: null,
+    pausedSince: null,
+    totalPauseTime: 0,
+  });
   await writeJson(PLAYTIME_SESSIONS_PATH, sessions);
   revalidatePath("/playtime");
 }
@@ -202,7 +208,35 @@ export async function stopActivePlaytimeSession(): Promise<void> {
   const sessions = await getPlaytimeSessions();
   const active = sessions.find((s) => s.endTime === null);
   if (!active) return;
+  // If stopped while paused, accumulate the final pause segment
+  if (active.pausedSince) {
+    active.totalPauseTime =
+      (active.totalPauseTime ?? 0) +
+      (Date.now() - new Date(active.pausedSince).getTime());
+    active.pausedSince = null;
+  }
   active.endTime = new Date().toISOString();
+  await writeJson(PLAYTIME_SESSIONS_PATH, sessions);
+  revalidatePath("/playtime");
+}
+
+export async function pauseActivePlaytimeSession(): Promise<void> {
+  const sessions = await getPlaytimeSessions();
+  const active = sessions.find((s) => s.endTime === null);
+  if (!active || active.pausedSince) return;
+  active.pausedSince = new Date().toISOString();
+  await writeJson(PLAYTIME_SESSIONS_PATH, sessions);
+  revalidatePath("/playtime");
+}
+
+export async function resumeActivePlaytimeSession(): Promise<void> {
+  const sessions = await getPlaytimeSessions();
+  const active = sessions.find((s) => s.endTime === null);
+  if (!active || !active.pausedSince) return;
+  active.totalPauseTime =
+    (active.totalPauseTime ?? 0) +
+    (Date.now() - new Date(active.pausedSince).getTime());
+  active.pausedSince = null;
   await writeJson(PLAYTIME_SESSIONS_PATH, sessions);
   revalidatePath("/playtime");
 }
