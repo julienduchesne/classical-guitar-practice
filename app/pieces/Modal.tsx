@@ -27,11 +27,9 @@ function ModalInner({ children }: { children: React.ReactNode }) {
   return (
     <div className={styles.modalBackdrop} onClick={close}>
       <div className={styles.modalDialog} onClick={(e) => e.stopPropagation()}>
-        <div className={styles.modalHeader}>
-          <button type="button" className={styles.modalClose} onClick={close} aria-label="Close">
-            ×
-          </button>
-        </div>
+        <button type="button" className={styles.modalClose} onClick={close} aria-label="Close">
+          ×
+        </button>
         {children}
       </div>
     </div>
