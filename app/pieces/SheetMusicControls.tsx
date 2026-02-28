@@ -3,7 +3,7 @@
 import { useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { useSearchParams } from "next/navigation";
-import { uploadSheetMusic, deleteSheetMusic } from "@/app/actions";
+import { uploadSheetMusic } from "@/app/actions";
 import styles from "./Pieces.module.css";
 
 const MAX_MB = 20;
@@ -27,7 +27,6 @@ export function SheetMusicControls({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [error, setError] = useState<string | null>(null);
   const [uploadPending, startUpload] = useTransition();
-  const [deletePending, startDelete] = useTransition();
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -57,41 +56,19 @@ export function SheetMusicControls({
     });
   }
 
-  function handleDelete() {
-    setError(null);
-    startDelete(async () => {
-      try {
-        await deleteSheetMusic(pieceId);
-        router.refresh();
-      } catch {
-        setError("Delete failed.");
-      }
-    });
-  }
-
-  const isPending = uploadPending || deletePending;
+  const isPending = uploadPending;
 
   return (
     <span className={styles.sheetMusicControls}>
       {hasSheetMusic ? (
-        <>
-          <a
-            href={pdfUrl(pieceId, password)}
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.sheetMusicLink}
-          >
-            View PDF
-          </a>
-          <button
-            type="button"
-            onClick={handleDelete}
-            disabled={isPending}
-            className={styles.sheetMusicDelete}
-          >
-            {deletePending ? "…" : "Delete PDF"}
-          </button>
-        </>
+        <a
+          href={pdfUrl(pieceId, password)}
+          target="_blank"
+          rel="noopener noreferrer"
+          className={styles.sheetMusicLink}
+        >
+          View PDF
+        </a>
       ) : (
         <>
           <button

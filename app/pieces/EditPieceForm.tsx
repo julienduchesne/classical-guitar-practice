@@ -1,8 +1,8 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { useState } from "react";
-import { updatePiece } from "@/app/actions";
+import { useState, useTransition } from "react";
+import { updatePiece, deleteSheetMusic } from "@/app/actions";
 import type { Piece, Proficiency } from "@/lib/types";
 import { PROFICIENCY_LEVELS } from "@/lib/types";
 import { Link } from "@/components/Link";
@@ -20,6 +20,7 @@ export function EditPieceForm({ piece }: { piece: Piece }) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [loading, setLoading] = useState(false);
+  const [deletePdfPending, startDeletePdf] = useTransition();
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -115,6 +116,26 @@ export function EditPieceForm({ piece }: { piece: Piece }) {
           defaultValue={piece.youtubeUrl ?? ""}
         />
       </div>
+      {piece.hasSheetMusic && (
+        <div className={styles.field}>
+          <label>Sheet music</label>
+          <div>
+            <button
+              type="button"
+              disabled={deletePdfPending}
+              className={styles.sheetMusicDelete}
+              onClick={() => {
+                startDeletePdf(async () => {
+                  await deleteSheetMusic(piece.id);
+                  router.refresh();
+                });
+              }}
+            >
+              {deletePdfPending ? "Deleting…" : "Delete PDF"}
+            </button>
+          </div>
+        </div>
+      )}
       <div className={styles.buttonRow}>
         <button type="submit" disabled={loading} className={styles.primaryButton}>
           {loading ? "Saving…" : "Save"}
