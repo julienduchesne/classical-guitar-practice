@@ -31,7 +31,7 @@ function AuthForm() {
   return (
     <main className={styles.page}>
       <div className={styles.card}>
-        <div className={styles.icon}>🎸</div>
+        <div className={styles.icon}>🎼</div>
         <h1 className={styles.heading}>Guitar Practice</h1>
         <form onSubmit={onSubmit}>
           <div className={styles.field}>

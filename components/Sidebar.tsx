@@ -39,7 +39,7 @@ export function Sidebar({
       </button>
 
       <div className={styles.logo}>
-        <span className={styles.logoIcon}>🎸</span>
+        <span className={styles.logoIcon}>🎼</span>
         Guitar Practice
       </div>
 
