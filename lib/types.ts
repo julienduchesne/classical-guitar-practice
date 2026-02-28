@@ -47,15 +47,6 @@ export interface DailyExerciseSet {
   exerciseTitles: string[];
 }
 
-export interface PracticeLogEntry {
-  id: string;
-  date: string; // YYYY-MM-DD
-  exerciseNames: string[];
-  newPieceTitle: string | null;
-  familiarPieceTitles: string[];
-  createdAt: string; // ISO datetime
-}
-
 export interface PlaytimeSession {
   id: string;
   startTime: string; // ISO datetime

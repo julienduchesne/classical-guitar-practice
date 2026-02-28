@@ -9,11 +9,9 @@ import type { PlaytimeSession } from "@/lib/types";
 type NavItem = { href: string; label: string; exact?: boolean; sub?: boolean };
 
 const nav: NavItem[] = [
-  { href: "/daily-practice", label: "Daily Practice" },
   { href: "/exercises", label: "Exercises", exact: true },
   { href: "/exercises/daily-pick", label: "Daily pick", sub: true },
   { href: "/pieces", label: "Pieces" },
-  { href: "/practice-log", label: "Practice Log" },
   { href: "/playtime", label: "Playtime" },
 ];
 

@@ -4,7 +4,7 @@ type Props = { searchParams: Promise<{ [key: string]: string | string[] | undefi
 
 export default async function Home({ searchParams }: Props) {
   const params = await searchParams;
-  const url = new URL("/daily-practice", "http://localhost");
+  const url = new URL("/pieces", "http://localhost");
   if (params.password && typeof params.password === "string") {
     url.searchParams.set("password", params.password);
   }

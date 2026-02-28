@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { readJson, writeJson, listBlobs } from "@/lib/blob";
 import { EXERCISES } from "@/lib/seed-exercises";
-import type { Exercise, Piece, PracticeLogEntry, PlaytimeSession } from "@/lib/types";
+import type { Exercise, Piece, PlaytimeSession } from "@/lib/types";
 import {
   type Proficiency,
   PROFICIENCY_LEVELS,
@@ -16,7 +16,6 @@ import {
 } from "@/lib/daily-logic";
 
 const PIECES_PATH = "data/pieces.json";
-const PRACTICE_LOG_PATH = "data/practice-log.json";
 
 function dailyPath(date: string): string {
   return `data/daily-${date}.json`;
@@ -45,7 +44,6 @@ export async function getTodayExercises(
 export async function regenerateTodayExercises(date: string): Promise<void> {
   const path = dailyPath(date);
   await writeJson(path, { date, exerciseTitles: [] });
-  revalidatePath("/daily-practice");
   revalidatePath("/exercises/daily-pick");
 }
 
@@ -103,7 +101,6 @@ export async function addPiece(formData: {
   };
   pieces.push(piece);
   await writeJson(PIECES_PATH, pieces);
-  revalidatePath("/daily-practice");
   revalidatePath("/pieces");
   revalidatePath("/sheet-music");
 }
@@ -123,7 +120,6 @@ export async function updatePiece(
   if (updates.goalBpm != null) pieces[i].goalBpm = updates.goalBpm;
   if (updates.currentCleanBpm != null) pieces[i].currentCleanBpm = updates.currentCleanBpm;
   await writeJson(PIECES_PATH, pieces);
-  revalidatePath("/daily-practice");
   revalidatePath("/pieces");
   revalidatePath("/sheet-music");
 }
@@ -136,7 +132,6 @@ export async function recordPlay(id: string): Promise<void> {
   pieces[i].lastPlayed = today;
   pieces[i].playCount += 1;
   await writeJson(PIECES_PATH, pieces);
-  revalidatePath("/daily-practice");
   revalidatePath("/pieces");
   revalidatePath("/sheet-music");
 }
@@ -146,40 +141,8 @@ export async function deletePiece(id: string): Promise<void> {
   const filtered = pieces.filter((p) => p.id !== id);
   if (filtered.length === pieces.length) return;
   await writeJson(PIECES_PATH, filtered);
-  revalidatePath("/daily-practice");
   revalidatePath("/pieces");
   revalidatePath("/sheet-music");
-}
-
-export async function getPracticeLog(): Promise<PracticeLogEntry[]> {
-  const data = await readJson<PracticeLogEntry[]>(PRACTICE_LOG_PATH);
-  return Array.isArray(data) ? data : [];
-}
-
-export async function savePracticeSession(entry: {
-  date: string;
-  exerciseNames: string[];
-  newPieceTitle: string | null;
-  familiarPieceTitles: string[];
-}): Promise<void> {
-  const log = await getPracticeLog();
-  const newEntry: PracticeLogEntry = {
-    id: crypto.randomUUID(),
-    ...entry,
-    createdAt: new Date().toISOString(),
-  };
-  log.push(newEntry);
-  await writeJson(PRACTICE_LOG_PATH, log);
-  revalidatePath("/practice-log");
-  revalidatePath("/daily-practice");
-}
-
-export async function deletePracticeLogEntry(id: string): Promise<void> {
-  const log = await getPracticeLog();
-  const filtered = log.filter((e) => e.id !== id);
-  if (filtered.length === log.length) return;
-  await writeJson(PRACTICE_LOG_PATH, filtered);
-  revalidatePath("/practice-log");
 }
 
 const PLAYTIME_SESSIONS_PATH = "data/playtime-sessions.json";
@@ -235,4 +198,4 @@ export async function updatePlaytimeSession(
   revalidatePath("/playtime");
 }
 
-export type { Exercise, Piece, Proficiency, PracticeLogEntry, PlaytimeSession };
+export type { Exercise, Piece, Proficiency, PlaytimeSession };
