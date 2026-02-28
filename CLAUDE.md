@@ -38,6 +38,7 @@ alwaysApply: true
 - Use inline `uv` requirements for any Python scripts.
 - No interactive git commands.
 - One canonical project doc: **CLAUDE.md** (this file). AGENTS.md and the Cursor rule in `.cursor/rules/` symlink here — edit only this file for repo context.
+- **Always run `npm run build` before committing or pushing** to catch type errors and build failures early.
 
 ## Commands
 
