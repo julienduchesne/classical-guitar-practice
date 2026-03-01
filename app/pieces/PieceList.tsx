@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense } from "react";
+import { useState, Suspense } from "react";
 import { useRouter } from "next/navigation";
 import { Link } from "@/components/Link";
 import { recordPlay } from "@/app/actions";
@@ -38,6 +38,44 @@ const KNOWLEDGE_CLASS: Record<KnowledgeLevel, string> = {
   by_heart: styles.knowledgeByHeart,
 };
 
+const PROFICIENCY_ORDER: Record<Proficiency, number> = {
+  new: 0,
+  struggling: 1,
+  learning: 2,
+  comfortable: 3,
+  very_proficient: 4,
+};
+
+const KNOWLEDGE_ORDER: Record<KnowledgeLevel, number> = {
+  none: 0,
+  partial: 1,
+  mostly: 2,
+  by_heart: 3,
+};
+
+type SortKey = "name" | "playCount" | "level" | "knowledge" | "lastPlayed";
+
+function sortPieces(pieces: Piece[], sortKey: SortKey): Piece[] {
+  return [...pieces].sort((a, b) => {
+    switch (sortKey) {
+      case "name":
+        return a.title.localeCompare(b.title);
+      case "playCount":
+        return b.playCount - a.playCount;
+      case "level":
+        return PROFICIENCY_ORDER[a.proficiency] - PROFICIENCY_ORDER[b.proficiency];
+      case "knowledge":
+        return KNOWLEDGE_ORDER[a.knowledge ?? "none"] - KNOWLEDGE_ORDER[b.knowledge ?? "none"];
+      case "lastPlayed": {
+        if (!a.lastPlayed && !b.lastPlayed) return 0;
+        if (!a.lastPlayed) return 1;
+        if (!b.lastPlayed) return -1;
+        return b.lastPlayed.localeCompare(a.lastPlayed);
+      }
+    }
+  });
+}
+
 export function PieceList({
   pieces,
   editId,
@@ -46,6 +84,7 @@ export function PieceList({
   editId: string | null;
 }) {
   const router = useRouter();
+  const [sortKey, setSortKey] = useState<SortKey>("name");
 
   async function handleMarkPlayed(id: string) {
     await recordPlay(id);
@@ -56,74 +95,93 @@ export function PieceList({
     return <p className={styles.emptyState}>No pieces yet. Add one above.</p>;
   }
 
+  const sorted = sortPieces(pieces, sortKey);
+
   return (
-    <ul className={styles.pieceList}>
-      {pieces.map((p) => (
-        <li key={p.id} className={styles.pieceCard}>
-          <span className={styles.pieceTitleCell}>
-            <span className={styles.pieceTitle}>{p.title}</span>
-            {p.troubleNotes.trim() && (
-              <span className={styles.troubleBadge} title={p.troubleNotes}>
-                trouble
+    <>
+      <div className={styles.sortControls}>
+        <label htmlFor="piece-sort" className={styles.sortLabel}>Sort by</label>
+        <select
+          id="piece-sort"
+          value={sortKey}
+          onChange={(e) => setSortKey(e.target.value as SortKey)}
+          className={styles.sortSelect}
+        >
+          <option value="name">Name</option>
+          <option value="playCount">Times played</option>
+          <option value="level">Level</option>
+          <option value="knowledge">Knowledge</option>
+          <option value="lastPlayed">Last played</option>
+        </select>
+      </div>
+      <ul className={styles.pieceList}>
+        {sorted.map((p) => (
+          <li key={p.id} className={styles.pieceCard}>
+            <span className={styles.pieceTitleCell}>
+              <span className={styles.pieceTitle}>{p.title}</span>
+              {p.troubleNotes.trim() && (
+                <span className={styles.troubleBadge} title={p.troubleNotes}>
+                  trouble
+                </span>
+              )}
+            </span>
+            <div className={styles.pieceMeta}>
+              <span className={styles.metaItem}>
+                <span className={styles.metaLabel}>Level</span>
+                <span className={`${styles.proficiency} ${PROFICIENCY_CLASS[p.proficiency]}`}>
+                  {PROFICIENCY_LABELS[p.proficiency]}
+                </span>
               </span>
-            )}
-          </span>
-          <div className={styles.pieceMeta}>
-            <span className={styles.metaItem}>
-              <span className={styles.metaLabel}>Level</span>
-              <span className={`${styles.proficiency} ${PROFICIENCY_CLASS[p.proficiency]}`}>
-                {PROFICIENCY_LABELS[p.proficiency]}
+              <span className={styles.metaItem}>
+                <span className={styles.metaLabel}>Knowledge</span>
+                <span className={`${styles.knowledge} ${KNOWLEDGE_CLASS[p.knowledge ?? "none"]}`}>
+                  {KNOWLEDGE_LABELS[p.knowledge ?? "none"]}
+                </span>
               </span>
-            </span>
-            <span className={styles.metaItem}>
-              <span className={styles.metaLabel}>Knowledge</span>
-              <span className={`${styles.knowledge} ${KNOWLEDGE_CLASS[p.knowledge ?? "none"]}`}>
-                {KNOWLEDGE_LABELS[p.knowledge ?? "none"]}
+              <span className={styles.metaItem}>
+                <span className={styles.metaLabel}>Last played</span>
+                <span className={styles.metaValue}>{p.lastPlayed ?? "—"}</span>
               </span>
-            </span>
-            <span className={styles.metaItem}>
-              <span className={styles.metaLabel}>Last played</span>
-              <span className={styles.metaValue}>{p.lastPlayed ?? "—"}</span>
-            </span>
-            <span className={styles.metaItem}>
-              <span className={styles.metaLabel}>Plays</span>
-              <span className={styles.metaValue}>{p.playCount}</span>
-            </span>
-          </div>
-          <span className={styles.pieceActions}>
-            <button
-              type="button"
-              onClick={() => handleMarkPlayed(p.id)}
-              className={styles.smallButton}
-            >
-              Mark as played
-            </button>
-            {editId !== p.id ? (
-              <Link href={`/pieces?edit=${p.id}`} className={styles.editLink}>
-                Edit
-              </Link>
-            ) : (
-              <span className={styles.editingBadge}>(editing)</span>
-            )}
-            {p.youtubeUrl && (
-              <a
-                href={p.youtubeUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={styles.youtubeLink}
+              <span className={styles.metaItem}>
+                <span className={styles.metaLabel}>Plays</span>
+                <span className={styles.metaValue}>{p.playCount}</span>
+              </span>
+            </div>
+            <span className={styles.pieceActions}>
+              <button
+                type="button"
+                onClick={() => handleMarkPlayed(p.id)}
+                className={styles.smallButton}
               >
-                ▶ YouTube
-              </a>
-            )}
-            <Suspense fallback={null}>
-              <SheetMusicControls
-                pieceId={p.id}
-                hasSheetMusic={p.hasSheetMusic ?? false}
-              />
-            </Suspense>
-          </span>
-        </li>
-      ))}
-    </ul>
+                Mark as played
+              </button>
+              {editId !== p.id ? (
+                <Link href={`/pieces?edit=${p.id}`} className={styles.editLink}>
+                  Edit
+                </Link>
+              ) : (
+                <span className={styles.editingBadge}>(editing)</span>
+              )}
+              {p.youtubeUrl && (
+                <a
+                  href={p.youtubeUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={styles.youtubeLink}
+                >
+                  ▶ YouTube
+                </a>
+              )}
+              <Suspense fallback={null}>
+                <SheetMusicControls
+                  pieceId={p.id}
+                  hasSheetMusic={p.hasSheetMusic ?? false}
+                />
+              </Suspense>
+            </span>
+          </li>
+        ))}
+      </ul>
+    </>
   );
 }

@@ -38,7 +38,7 @@ alwaysApply: true
 - Use inline `uv` requirements for any Python scripts.
 - No interactive git commands.
 - One canonical project doc: **CLAUDE.md** (this file). AGENTS.md and the Cursor rule in `.cursor/rules/` symlink here — edit only this file for repo context.
-- **Always run `npm run build` before committing or pushing** to catch type errors and build failures early.
+- **Always run `npm run test && npm run playwright && npm run build` before committing or pushing** to catch type errors, test failures, and build failures early.
 
 ## Edit dialogs / modals
 
@@ -52,9 +52,11 @@ All edit and add dialogs use a shared `Modal` component (`components/Modal.tsx` 
 
 ## Commands
 
-| Command         | Purpose              |
-|-----------------|----------------------|
-| `npm run dev`   | Local dev server     |
-| `npm run build` | Production build     |
-| `npm run start` | Run production build |
-| `npm run lint`  | Run ESLint           |
+| Command              | Purpose                                                              |
+|----------------------|----------------------------------------------------------------------|
+| `npm run dev`        | Local dev server                                                     |
+| `npm run build`      | Production build                                                     |
+| `npm run start`      | Run production build                                                 |
+| `npm run lint`       | Run ESLint                                                           |
+| `npm run test`       | Run Vitest unit tests                                                |
+| `npm run playwright` | Run Playwright e2e tests (requires dev server running or starts one) |
