@@ -7,7 +7,7 @@ import { Link } from "@/components/Link";
 import type { PlaytimeSession } from "@/lib/types";
 import styles from "./Playtime.module.css";
 
-/** Convert UTC ISO string to datetime-local input value in local time. */
+/** Convert UTC ISO string to datetime-local input value in local time (with seconds). */
 function toLocalDatetimeValue(iso: string): string {
   const d = new Date(iso);
   const year = d.getFullYear();
@@ -15,7 +15,8 @@ function toLocalDatetimeValue(iso: string): string {
   const day = String(d.getDate()).padStart(2, "0");
   const hours = String(d.getHours()).padStart(2, "0");
   const minutes = String(d.getMinutes()).padStart(2, "0");
-  return `${year}-${month}-${day}T${hours}:${minutes}`;
+  const seconds = String(d.getSeconds()).padStart(2, "0");
+  return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`;
 }
 
 export function EditPlaytimeForm({ session }: { session: PlaytimeSession }) {
@@ -25,8 +26,12 @@ export function EditPlaytimeForm({ session }: { session: PlaytimeSession }) {
   const [endTime, setEndTime] = useState(() =>
     session.endTime ? toLocalDatetimeValue(session.endTime) : ""
   );
+  const totalMs = session.totalPauseTime ?? 0;
   const [pausedMinutes, setPausedMinutes] = useState(() =>
-    Math.round((session.totalPauseTime ?? 0) / 60000)
+    Math.floor(totalMs / 60000)
+  );
+  const [pausedSeconds, setPausedSeconds] = useState(() =>
+    Math.floor((totalMs % 60000) / 1000)
   );
   const [pending, startTransition] = useTransition();
   const router = useRouter();
@@ -38,7 +43,7 @@ export function EditPlaytimeForm({ session }: { session: PlaytimeSession }) {
       await updatePlaytimeSession(session.id, {
         startTime: new Date(startTime).toISOString(),
         endTime: endTime ? new Date(endTime).toISOString() : null,
-        totalPauseTime: pausedMinutes * 60000,
+        totalPauseTime: pausedMinutes * 60000 + pausedSeconds * 1000,
       });
       const password = searchParams.get("password");
       router.push(password ? `/playtime?password=${encodeURIComponent(password)}` : "/playtime");
@@ -53,6 +58,7 @@ export function EditPlaytimeForm({ session }: { session: PlaytimeSession }) {
         <input
           id="startTime"
           type="datetime-local"
+          step="1"
           value={startTime}
           onChange={(e) => setStartTime(e.target.value)}
           required
@@ -63,19 +69,34 @@ export function EditPlaytimeForm({ session }: { session: PlaytimeSession }) {
         <input
           id="endTime"
           type="datetime-local"
+          step="1"
           value={endTime}
           onChange={(e) => setEndTime(e.target.value)}
         />
       </div>
       <div className={styles.field}>
-        <label htmlFor="pausedMinutes">Paused time (minutes)</label>
-        <input
-          id="pausedMinutes"
-          type="number"
-          min={0}
-          value={pausedMinutes}
-          onChange={(e) => setPausedMinutes(Number(e.target.value))}
-        />
+        <label>Paused time</label>
+        <div className={styles.pauseInputs}>
+          <input
+            id="pausedMinutes"
+            type="number"
+            min={0}
+            value={pausedMinutes}
+            onChange={(e) => setPausedMinutes(Number(e.target.value))}
+            aria-label="Paused minutes"
+          />
+          <span className={styles.pauseSep}>m</span>
+          <input
+            id="pausedSeconds"
+            type="number"
+            min={0}
+            max={59}
+            value={pausedSeconds}
+            onChange={(e) => setPausedSeconds(Number(e.target.value))}
+            aria-label="Paused seconds"
+          />
+          <span className={styles.pauseSep}>s</span>
+        </div>
       </div>
       <div className={styles.formActions}>
         <button type="submit" className={styles.saveButton} disabled={pending}>

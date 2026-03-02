@@ -50,6 +50,12 @@ All edit and add dialogs use a shared `Modal` component (`components/Modal.tsx` 
 - Form submit handlers must also preserve the password param when navigating away (use `useSearchParams` and build the path manually, as the custom `Link` component is only for `<a>` elements).
 - The `Modal` component wraps its children in `Suspense`, covering any `useSearchParams` calls inside child components.
 
+## Testing
+
+- **Always write new Playwright tests for new features.**
+- **Modify existing Playwright tests when modifying an existing feature.**
+- **Never delete tests because they don't pass** — fix them instead.
+
 ## Commands
 
 | Command              | Purpose                                                              |

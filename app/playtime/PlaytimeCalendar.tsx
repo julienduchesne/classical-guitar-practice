@@ -1,0 +1,102 @@
+"use client";
+
+import { useState } from "react";
+import type { PlaytimeSession } from "@/lib/types";
+import styles from "./Playtime.module.css";
+
+function getLocalDateKey(isoString: string): string {
+  const d = new Date(isoString);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
+function buildDayTotals(sessions: PlaytimeSession[]): Map<string, number> {
+  const totals = new Map<string, number>();
+  for (const session of sessions) {
+    if (!session.endTime) continue;
+    const ms =
+      new Date(session.endTime).getTime() -
+      new Date(session.startTime).getTime() -
+      (session.totalPauseTime ?? 0);
+    if (ms <= 0) continue;
+    const key = getLocalDateKey(session.startTime);
+    totals.set(key, (totals.get(key) ?? 0) + ms);
+  }
+  return totals;
+}
+
+function formatDayDuration(ms: number): string {
+  const totalMinutes = Math.floor(ms / 60000);
+  const hours = Math.floor(totalMinutes / 60);
+  const minutes = totalMinutes % 60;
+  if (hours > 0) return `${hours}h${minutes > 0 ? ` ${minutes}m` : ""}`;
+  return `${minutes}m`;
+}
+
+export function PlaytimeCalendar({ sessions }: { sessions: PlaytimeSession[] }) {
+  const today = new Date();
+  const [year, setYear] = useState(today.getFullYear());
+  const [month, setMonth] = useState(today.getMonth());
+
+  const dayTotals = buildDayTotals(sessions);
+
+  const firstDay = new Date(year, month, 1).getDay();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const todayKey = getLocalDateKey(today.toISOString());
+
+  function prev() {
+    if (month === 0) { setYear((y) => y - 1); setMonth(11); }
+    else setMonth((m) => m - 1);
+  }
+
+  function next() {
+    if (month === 11) { setYear((y) => y + 1); setMonth(0); }
+    else setMonth((m) => m + 1);
+  }
+
+  const monthLabel = new Date(year, month, 1).toLocaleString("default", {
+    month: "long",
+    year: "numeric",
+  });
+
+  const cells: (number | null)[] = [];
+  for (let i = 0; i < firstDay; i++) cells.push(null);
+  for (let d = 1; d <= daysInMonth; d++) cells.push(d);
+
+  return (
+    <div className={styles.calendar}>
+      <div className={styles.calendarHeader}>
+        <button type="button" onClick={prev} className={styles.calendarNav} aria-label="Previous month">
+          ‹
+        </button>
+        <span className={styles.calendarMonth}>{monthLabel}</span>
+        <button type="button" onClick={next} className={styles.calendarNav} aria-label="Next month">
+          ›
+        </button>
+      </div>
+      <div className={styles.calendarGrid}>
+        {["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"].map((d) => (
+          <div key={d} className={styles.calendarDayHeader}>{d}</div>
+        ))}
+        {cells.map((day, i) => {
+          if (day === null) return <div key={`empty-${i}`} />;
+          const key = `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+          const ms = dayTotals.get(key);
+          const isToday = key === todayKey;
+          return (
+            <div
+              key={key}
+              className={[
+                styles.calendarCell,
+                isToday ? styles.calendarToday : "",
+                ms ? styles.calendarHasTime : "",
+              ].filter(Boolean).join(" ")}
+            >
+              <span className={styles.calendarDayNum}>{day}</span>
+              {ms ? <span className={styles.calendarTime}>{formatDayDuration(ms)}</span> : null}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}

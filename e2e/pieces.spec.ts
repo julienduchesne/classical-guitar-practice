@@ -3,7 +3,7 @@ import { test, expect } from "@playwright/test";
 test.describe("Pieces page", () => {
   test("shows heading and add button", async ({ page }) => {
     await page.goto("/pieces");
-    await expect(page.getByRole("heading", { name: "Pieces" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Pieces", exact: true })).toBeVisible();
     await expect(page.getByRole("link", { name: "+" })).toBeVisible();
   });
 
@@ -11,7 +11,7 @@ test.describe("Pieces page", () => {
     await page.goto("/pieces");
     const sortSelect = page.locator("#piece-sort");
     // Sort control only appears when there are pieces
-    const hasPieces = await page.locator("ul li").count() > 0;
+    const hasPieces = await page.locator("main ul li").count() > 0;
     if (hasPieces) {
       await expect(sortSelect).toBeVisible();
       await expect(sortSelect).toHaveValue("name");
@@ -20,7 +20,7 @@ test.describe("Pieces page", () => {
 
   test("sort control changes value when selected", async ({ page }) => {
     await page.goto("/pieces");
-    const hasPieces = await page.locator("ul li").count() > 0;
+    const hasPieces = await page.locator("main ul li").count() > 0;
     if (!hasPieces) {
       test.skip();
       return;

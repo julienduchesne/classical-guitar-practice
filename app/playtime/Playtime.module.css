@@ -184,3 +184,122 @@
   color: var(--color-text-secondary);
   text-decoration: underline;
 }
+
+/* Pause time inputs */
+.pauseInputs {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.pauseInputs input {
+  width: 5rem;
+}
+
+.pauseSep {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+}
+
+/* Sessions section spacing */
+.sessionsSection {
+  margin-top: var(--space-6);
+}
+
+/* Calendar */
+.calendar {
+  margin-bottom: var(--space-6);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
+  box-shadow: var(--shadow-card);
+}
+
+.calendarHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-4);
+}
+
+.calendarMonth {
+  font-weight: 600;
+  font-size: 0.9375rem;
+  color: var(--color-text);
+}
+
+.calendarNav {
+  background: none;
+  border: none;
+  font-size: 1.25rem;
+  line-height: 1;
+  padding: var(--space-1) var(--space-2);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  border-radius: var(--radius-md);
+  transition: background var(--transition-fast);
+}
+
+.calendarNav:hover {
+  background: var(--color-border-light);
+  color: var(--color-text);
+}
+
+.calendarGrid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+}
+
+.calendarDayHeader {
+  text-align: center;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  padding-bottom: var(--space-2);
+}
+
+.calendarCell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: var(--space-1);
+  border-radius: var(--radius-sm);
+  min-height: 3rem;
+}
+
+.calendarToday .calendarDayNum {
+  background: var(--color-primary);
+  color: white;
+  border-radius: var(--radius-full);
+  width: 1.5rem;
+  height: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.calendarDayNum {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--color-text);
+  width: 1.5rem;
+  height: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.calendarTime {
+  font-size: 0.625rem;
+  font-weight: 600;
+  color: var(--color-primary);
+  margin-top: 2px;
+  text-align: center;
+}
+
+.calendarHasTime {
+  background: var(--color-primary-light);
+}
