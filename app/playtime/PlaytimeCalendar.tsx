@@ -33,11 +33,18 @@ function formatDayDuration(ms: number): string {
   return `${minutes}m`;
 }
 
-/** Returns a red→green background color based on ratio of practice to target. */
+/** Returns a red→green background color based on ratio of practice to target.
+ * 0–75% of target: red→yellow (hue 0→60)
+ * 75–100% of target: yellow→green (hue 60→120), full green only at target */
 function dayColor(ms: number, targetMs: number): string {
   if (targetMs <= 0) return "hsl(120, 55%, 87%)";
   const ratio = Math.min(1, ms / targetMs);
-  const hue = Math.round(ratio * 120); // 0 = red, 120 = green
+  let hue: number;
+  if (ratio <= 0.75) {
+    hue = Math.round((ratio / 0.75) * 60); // 0 → 60 (red → yellow)
+  } else {
+    hue = Math.round(60 + ((ratio - 0.75) / 0.25) * 60); // 60 → 120 (yellow → green)
+  }
   return `hsl(${hue}, 60%, 87%)`;
 }
 

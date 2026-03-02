@@ -36,3 +36,6 @@ Thumbs.db
 
 # TypeScript
 next-env.d.ts
+
+# Playwright
+test-results
