@@ -179,6 +179,17 @@ export async function deleteSheetMusic(pieceId: string): Promise<void> {
 }
 
 const PLAYTIME_SESSIONS_PATH = "data/playtime-sessions.json";
+const PLAYTIME_TARGET_PATH = "data/playtime-target.json";
+
+export async function getPlayTarget(): Promise<number> {
+  const data = await readJson<{ minutes: number }>(PLAYTIME_TARGET_PATH);
+  return typeof data?.minutes === "number" ? data.minutes : 0;
+}
+
+export async function setPlayTarget(minutes: number): Promise<void> {
+  await writeJson(PLAYTIME_TARGET_PATH, { minutes: Math.max(0, Math.floor(minutes)) });
+  revalidatePath("/playtime");
+}
 
 export async function getPlaytimeSessions(): Promise<PlaytimeSession[]> {
   const data = await readJson<PlaytimeSession[]>(PLAYTIME_SESSIONS_PATH);

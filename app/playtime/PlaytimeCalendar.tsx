@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import type { PlaytimeSession } from "@/lib/types";
+import { setPlayTarget } from "@/app/actions";
 import styles from "./Playtime.module.css";
 
 function getLocalDateKey(isoString: string): string {
@@ -32,12 +33,29 @@ function formatDayDuration(ms: number): string {
   return `${minutes}m`;
 }
 
-export function PlaytimeCalendar({ sessions }: { sessions: PlaytimeSession[] }) {
+/** Returns a red→green background color based on ratio of practice to target. */
+function dayColor(ms: number, targetMs: number): string {
+  if (targetMs <= 0) return "hsl(120, 55%, 87%)";
+  const ratio = Math.min(1, ms / targetMs);
+  const hue = Math.round(ratio * 120); // 0 = red, 120 = green
+  return `hsl(${hue}, 60%, 87%)`;
+}
+
+export function PlaytimeCalendar({
+  sessions,
+  playTarget,
+}: {
+  sessions: PlaytimeSession[];
+  playTarget: number;
+}) {
   const today = new Date();
   const [year, setYear] = useState(today.getFullYear());
   const [month, setMonth] = useState(today.getMonth());
+  const [targetMinutes, setTargetMinutes] = useState(playTarget);
+  const [, startTransition] = useTransition();
 
   const dayTotals = buildDayTotals(sessions);
+  const targetMs = targetMinutes * 60000;
 
   const firstDay = new Date(year, month, 1).getDay();
   const daysInMonth = new Date(year, month + 1, 0).getDate();
@@ -51,6 +69,14 @@ export function PlaytimeCalendar({ sessions }: { sessions: PlaytimeSession[] }) 
   function next() {
     if (month === 11) { setYear((y) => y + 1); setMonth(0); }
     else setMonth((m) => m + 1);
+  }
+
+  function saveTarget(value: number) {
+    const clamped = Math.max(0, Math.floor(value));
+    setTargetMinutes(clamped);
+    startTransition(async () => {
+      await setPlayTarget(clamped);
+    });
   }
 
   const monthLabel = new Date(year, month, 1).toLocaleString("default", {
@@ -73,6 +99,24 @@ export function PlaytimeCalendar({ sessions }: { sessions: PlaytimeSession[] }) 
           ›
         </button>
       </div>
+      <div className={styles.calendarTarget}>
+        <label htmlFor="playTarget" className={styles.calendarTargetLabel}>
+          Daily target
+        </label>
+        <input
+          id="playTarget"
+          type="number"
+          min={0}
+          value={targetMinutes}
+          className={styles.calendarTargetInput}
+          onChange={(e) => setTargetMinutes(Number(e.target.value))}
+          onBlur={(e) => saveTarget(Number(e.target.value))}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") saveTarget(Number((e.target as HTMLInputElement).value));
+          }}
+        />
+        <span className={styles.calendarTargetUnit}>min</span>
+      </div>
       <div className={styles.calendarGrid}>
         {["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"].map((d) => (
           <div key={d} className={styles.calendarDayHeader}>{d}</div>
@@ -88,8 +132,8 @@ export function PlaytimeCalendar({ sessions }: { sessions: PlaytimeSession[] }) 
               className={[
                 styles.calendarCell,
                 isToday ? styles.calendarToday : "",
-                ms ? styles.calendarHasTime : "",
               ].filter(Boolean).join(" ")}
+              style={ms ? { backgroundColor: dayColor(ms, targetMs) } : undefined}
             >
               <span className={styles.calendarDayNum}>{day}</span>
               {ms ? <span className={styles.calendarTime}>{formatDayDuration(ms)}</span> : null}

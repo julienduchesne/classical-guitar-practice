@@ -30,6 +30,19 @@ test.describe("Playtime page", () => {
     expect(newMonth).not.toBe(initialMonth);
   });
 
+  test("shows daily target input", async ({ page }) => {
+    await page.goto("/playtime");
+    await expect(page.getByLabel("Daily target")).toBeVisible();
+  });
+
+  test("daily target input accepts a numeric value", async ({ page }) => {
+    await page.goto("/playtime");
+    const targetInput = page.getByLabel("Daily target");
+    await targetInput.fill("45");
+    await targetInput.press("Enter");
+    await expect(targetInput).toHaveValue("45");
+  });
+
   test("shows empty state when no sessions", async ({ page }) => {
     await page.goto("/playtime");
     const hasEditLinks = await page.getByRole("link", { name: "Edit" }).count() > 0;

@@ -36,7 +36,11 @@ function ModalInner({
 
   return (
     <div className={styles.modalBackdrop} onClick={close}>
-      <div className={styles.modalDialog} onClick={(e) => e.stopPropagation()}>
+      <div
+        className={styles.modalDialog}
+        onClick={(e) => e.stopPropagation()}
+        onKeyDown={(e) => { if (e.key === "Escape") close(); }}
+      >
         <button
           type="button"
           className={styles.modalClose}

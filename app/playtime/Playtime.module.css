@@ -300,6 +300,28 @@
   text-align: center;
 }
 
-.calendarHasTime {
-  background: var(--color-primary-light);
+/* Target row */
+.calendarTarget {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-3);
+}
+
+.calendarTargetLabel {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--color-text-muted);
+}
+
+.calendarTargetInput {
+  width: 4rem;
+  padding: 0.125rem 0.375rem;
+  font-size: 0.8125rem;
+  text-align: center;
+}
+
+.calendarTargetUnit {
+  font-size: 0.8125rem;
+  color: var(--color-text-muted);
 }

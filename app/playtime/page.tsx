@@ -1,6 +1,6 @@
 export const dynamic = "force-dynamic";
 
-import { getPlaytimeSessions } from "@/app/actions";
+import { getPlaytimeSessions, getPlayTarget } from "@/app/actions";
 import { EditPlaytimeForm } from "./EditPlaytimeForm";
 import { Modal } from "@/components/Modal";
 import { PlaytimeCalendar } from "./PlaytimeCalendar";
@@ -15,7 +15,10 @@ type Props = {
 export default async function PlaytimePage({ searchParams }: Props) {
   const params = await searchParams;
   const editId = typeof params.edit === "string" ? params.edit : null;
-  const sessions = await getPlaytimeSessions();
+  const [sessions, playTarget] = await Promise.all([
+    getPlaytimeSessions(),
+    getPlayTarget(),
+  ]);
   const sessionToEdit: PlaytimeSession | null =
     editId ? sessions.find((s) => s.id === editId) ?? null : null;
 
@@ -29,7 +32,7 @@ export default async function PlaytimePage({ searchParams }: Props) {
         </Modal>
       )}
 
-      <PlaytimeCalendar sessions={sessions} />
+      <PlaytimeCalendar sessions={sessions} playTarget={playTarget} />
 
       <div className={styles.sessionsSection}>
         <PlaytimeSessionList sessions={sessions} />
