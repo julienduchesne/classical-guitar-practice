@@ -44,10 +44,18 @@ export function PlaytimeButton({
   const isPaused = pausedSince !== null;
 
   // Sync with server prop when it changes (e.g. after router.refresh())
+  // Only sync timestamps on initial load (session === null locally) to avoid
+  // display jumps caused by mixing client and server clock domains.
+  // totalPauseTime is a duration computed from server-side timestamps only,
+  // so it is safe to sync and does not introduce clock-skew artefacts.
   useEffect(() => {
-    setActiveStartTime(serverActiveSession?.startTime ?? null);
-    setPausedSince(serverActiveSession?.pausedSince ?? null);
-    setTotalPauseTime(serverActiveSession?.totalPauseTime ?? 0);
+    if (!serverActiveSession) {
+      setActiveStartTime(null);
+      setPausedSince(null);
+      setTotalPauseTime(0);
+    } else {
+      setTotalPauseTime(serverActiveSession.totalPauseTime ?? 0);
+    }
   }, [serverActiveSession]);
 
   // Run elapsed timer while active
