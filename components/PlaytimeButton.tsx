@@ -82,41 +82,41 @@ export function PlaytimeButton({
   }, [activeStartTime, pausedSince, totalPauseTime]);
 
   function handleStart() {
+    setActiveStartTime(new Date().toISOString());
+    setPausedSince(null);
+    setTotalPauseTime(0);
     startTransition(async () => {
       await startPlaytimeSession();
-      setActiveStartTime(new Date().toISOString());
-      setPausedSince(null);
-      setTotalPauseTime(0);
       router.refresh();
     });
   }
 
   function handleStop() {
+    setActiveStartTime(null);
+    setPausedSince(null);
+    setTotalPauseTime(0);
     startTransition(async () => {
       await stopActivePlaytimeSession();
-      setActiveStartTime(null);
-      setPausedSince(null);
-      setTotalPauseTime(0);
       router.refresh();
     });
   }
 
   function handlePause() {
+    setPausedSince(new Date().toISOString());
     startTransition(async () => {
       await pauseActivePlaytimeSession();
-      setPausedSince(new Date().toISOString());
       router.refresh();
     });
   }
 
   function handleResume() {
+    const pauseMs = pausedSince
+      ? Date.now() - new Date(pausedSince).getTime()
+      : 0;
+    setTotalPauseTime((prev) => prev + pauseMs);
+    setPausedSince(null);
     startTransition(async () => {
-      const pauseMs = pausedSince
-        ? Date.now() - new Date(pausedSince).getTime()
-        : 0;
       await resumeActivePlaytimeSession();
-      setTotalPauseTime((prev) => prev + pauseMs);
-      setPausedSince(null);
       router.refresh();
     });
   }
